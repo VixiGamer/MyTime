@@ -1,0 +1,85 @@
+/* --- GLOBAL STYLES & DARK MODE --- */
+[data-bs-theme="light"] {
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --border-glass: rgba(0, 0, 0, 0.1);
+  --body-bg: #f8f9fa;
+  --text-main: #212529;
+}
+
+[data-bs-theme="dark"] {
+  --bg-glass: rgba(33, 37, 41, 0.8);
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --body-bg: #121212;
+  --text-main: #f8f9fa;
+}
+
+body {
+  background-color: var(--body-bg) !important;
+  color: var(--text-main) !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* La classe della "Pillola" attiva */
+.bg-primary-emphasis {
+    /* Lo sfondo della pillola diventa il colore del testo principale */
+    background-color: var(--text-main) !important; 
+    /* Il testo dentro la pillola diventa il colore dello sfondo della pagina */
+    color: var(--body-bg) !important; 
+    border: none !important;
+}
+
+.nav-item, .navbar-nav {
+    list-style: none !important;
+}
+
+.transition-all { transition: all 0.3s ease-in-out; }
+
+.theme-toggle-btn:hover {
+    transform: scale(1.1);
+    background-color: var(--border-glass) !important;
+}
+/* --------------------------------- */
+
+
+/* #root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+} */

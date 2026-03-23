@@ -1,0 +1,11 @@
+.transition-all { transition: all 0.2s ease-in-out; }
+
+.scale-110 { transform: scale(1.15); }
+
+.ls-wide { letter-spacing: 1px; }
+
+.custom-range::-webkit-slider-runnable-track {
+    background: #eee;
+    height: 8px;
+    border-radius: 10px;
+}
