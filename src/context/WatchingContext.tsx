@@ -153,22 +153,42 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
     const markShowAsWatched = (showId: number) => {
         setWatchingList((prev) => prev.map((item) => {
             if (item.showId === showId) {
+                //^ Identifichiamo tutte le stagioni uniche presenti negli episodi
+                const uniqueSeasonNumbers = Array.from(
+                    new Set(item.episodes.map(ep => ep.episodeData.season))
+                );
+
+                //^ Aggiorniamo (o creiamo) il progresso per ogni stagione
+                const updatedSeasons = uniqueSeasonNumbers.map(sNum => {
+                    const existingSeason = item.seasons?.find(s => s.seasonNumber === sNum);
+                    
+                    //^ Se la stagione era già stata completata in questa sessione, non aumentiamo l'allTimeCount
+                    const wasAlreadyComplete = existingSeason?.sessionCount === 1;
+
+                    return {
+                        seasonNumber: sNum,
+                        userRating: existingSeason?.userRating || 0,
+                        sessionCount: 1,
+                        allTimeCount: wasAlreadyComplete 
+                            ? (existingSeason?.allTimeCount || 0) 
+                            : (existingSeason?.allTimeCount || 0) + 1
+                    };
+                });
+
                 return {
                     ...item,
                     lastUpdated: new Date(),
                     sessionCount: 1,
                     allTimeCount: (item.allTimeCount || 0) + 1,
-                    episodes: item.episodes.map(ep => ({
+                    
+                    episodes: item.episodes.map(ep => ({        //^ Aggiorniamo tutti gli episodi
                         ...ep,
                         sessionWatched: true,
                         sessionCount: 1,
                         allTimeCount: !ep.sessionWatched ? (ep.allTimeCount || 0) + 1 : ep.allTimeCount
                     })),
-                    seasons: item.seasons?.map(s => ({
-                        ...s,
-                        sessionCount: 1,
-                        allTimeCount: (s.allTimeCount || 0) + 1
-                    })) || []
+
+                    seasons: updatedSeasons
                 };
             }
             return item;
@@ -179,26 +199,25 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
     const markSeasonAsWatched = (showId: number, seasonNumber: number) => {
         setWatchingList((prev) => prev.map((item) => {
             if (item.showId === showId) {
+                const isAlreadyComplete = item.seasons?.find(s => s.seasonNumber === seasonNumber)?.sessionCount === 1;
+
                 return {
                     ...item,
                     lastUpdated: new Date(),
                     episodes: item.episodes.map(ep => {
                         if (ep.episodeData.season === seasonNumber) {
-                            // Incrementiamo allTimeCount solo se l'episodio non era già stato visto in questa sessione
-                            const needsIncrement = !ep.sessionWatched;
                             return { 
                                 ...ep, 
                                 sessionWatched: true, 
-                                sessionCount: 1, 
-                                allTimeCount: needsIncrement ? (ep.allTimeCount || 0) + 1 : ep.allTimeCount 
+                                sessionCount: 1,
+                                allTimeCount: !ep.sessionWatched ? (ep.allTimeCount || 0) + 1 : ep.allTimeCount
                             };
                         }
                         return ep;
                     }),
-                    // Aggiorniamo anche lo stato della stagione nell'array seasons
                     seasons: item.seasons?.find(s => s.seasonNumber === seasonNumber)
                         ? item.seasons.map(s => s.seasonNumber === seasonNumber 
-                            ? { ...s, sessionCount: 1, allTimeCount: (s.allTimeCount || 0) + 1 } : s)
+                            ? { ...s, sessionCount: 1, allTimeCount: isAlreadyComplete ? s.allTimeCount : (s.allTimeCount || 0) + 1 } : s)
                         : [...(item.seasons || []), { seasonNumber, sessionCount: 1, allTimeCount: 1 }]
                 };
             }

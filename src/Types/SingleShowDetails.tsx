@@ -14,7 +14,7 @@ export interface SingleShowDetails {
   schedule: Schedule
   rating: Rating
   weight: number
-  network: number | string          //! MODIFICATO (prima era 'any')
+  network?: Network
   webChannel: WebChannel
   dvdCountry: number | string          //! MODIFICATO (prima era 'any')
   externals: Externals
@@ -23,6 +23,14 @@ export interface SingleShowDetails {
   updated: number
   _links: Links
 }
+
+export interface Network {
+  id: number
+  name: string
+  country: Country
+  officialSite?: string
+}
+
 
 export interface Schedule {
   time: string

@@ -21,7 +21,6 @@ export default function SingleShowPage() {
     const [numberOfSeasons, setNumberOfSeasons] = useState<number>(0);      //* Il numero di stagioni presenti nella serie
     const [seasonsDetails, setSeasonDetails] = useState<Season[]>([]);
     const [numberOfEpisodes, setNumberOfEpisodes] = useState<number>(0);    //* Il numero di episodi totali della serie
-    const [selectedSeason, setSelectedSeason] = useState<number>(1);
     const [cast, setCast] = useState<SingleCast[]>([]);
     const [isEpisodesLoading, setIsEpisodesLoading] = useState(true);
 
@@ -29,7 +28,6 @@ export default function SingleShowPage() {
     const [error500, setError500] = useState(false);    //^ Per gestire l'errore 500
 
     const [posterImgLoaded, setPosterImgLoaded] = useState(false);
-    const [episodeImgLoaded, setEpisodeImgLoaded] = useState(false);
     const imgOriginalMedium = singleShowData?.image?.original || singleShowData?.image?.medium;
 
     //^ Stato per la modale di valutazione
@@ -64,11 +62,43 @@ export default function SingleShowPage() {
     const isBeingWatched = getShowProgress(Number(showId));
 
     const totalShowWatchedCount = isBeingWatched?.allTimeCount || 0;        //^ Conteggio Serie Totale
+    const isShowFullyWatched = isBeingWatched?.episodes.length && isBeingWatched?.episodes.every(ep => ep.sessionWatched);
+
+    const initialSeason = (() => {
+        if (!isBeingWatched || isBeingWatched.episodes.length === 0) return 1;
+
+        // Cerchiamo il primo episodio non visto nella sessione attuale
+        const firstUnwatchedEpisode = isBeingWatched.episodes.find(ep => !ep.sessionWatched);
+
+        // Se esiste, restituiamo la sua stagione, altrimenti l'ultima stagione disponibile
+        return firstUnwatchedEpisode 
+            ? firstUnwatchedEpisode.episodeData.season 
+            : Math.max(...isBeingWatched.episodes.map(ep => ep.episodeData.season));
+    })();
+
+    const [selectedSeasonState, setSelectedSeasonState] = useState<{
+        showId: number;
+        season: number | null;
+    }>({
+        showId: Number(showId),
+        season: null
+    });
+
+    const selectedSeason = selectedSeasonState.showId === Number(showId) && selectedSeasonState.season !== null
+        ? selectedSeasonState.season
+        : initialSeason;
+
+    const setSelectedSeason = (season: number) => {
+        setSelectedSeasonState({
+            showId: Number(showId),
+            season
+        });
+    };
+
     const currentSeasonEpisodes = isBeingWatched?.episodes.filter(ep => ep.episodeData.season === selectedSeason);
     const seasonProg = isBeingWatched?.seasons?.find(s => s.seasonNumber === selectedSeason);
     const isSeasonFullyWatched = currentSeasonEpisodes?.length && currentSeasonEpisodes.every(ep => ep.sessionWatched);
     const seasonWatchedCount = seasonProg?.sessionCount || 0;               //^ Conteggio Stagione Selezionata
-    const isShowFullyWatched = isBeingWatched?.episodes.length && isBeingWatched?.episodes.every(ep => ep.sessionWatched);
 
     //* Fech dei dettagli della serie, senza gli episodi
     useEffect(() => {
