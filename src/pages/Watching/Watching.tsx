@@ -19,7 +19,7 @@ export default function Watching() {
         rateShow,
         rateEpisode,
         rateSeason
-    } = useWatching(); 
+    } = useWatching();
     
     const navigate = useNavigate();
 

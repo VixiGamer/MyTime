@@ -235,7 +235,7 @@ export default function SingleShowPage() {
 
     return (
         <div className="p-4 position-relative">
-            <button className="btn btn-outline-dark mb-3" onClick={() => navigate(-1)}>Back</button>
+            <button className="btn btn-outline-dark mb-4 rounded-pill px-4 shadow-sm" onClick={() => navigate(-1)}>← Back</button>
             <h1>{singleShowData?.name}</h1>
             
             <div className="d-flex gap-4 mb-4 flex-wrap">
