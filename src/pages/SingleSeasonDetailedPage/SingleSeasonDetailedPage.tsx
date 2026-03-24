@@ -13,6 +13,8 @@ export default function SingleSeasonDetailedPage() {
     const { showId, seasonId } = useParams();
     const navigate = useNavigate();
 
+    const accentColor = "#2FA4D7"
+
     const [singleSeasonData, setSingleSeasonData] = useState<Season | null>(null);
     const [seasonEpisodes, setSeasonEpisodes] = useState<SingleEpisode[]>([]);
     const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
@@ -124,7 +126,7 @@ export default function SingleSeasonDetailedPage() {
                     {/* Content Column */}
                     <div className="col-md-8 col-lg-9 d-flex flex-column">
                         <div className="mb-auto">
-                            <h5 className="text-info fw-bold text-uppercase mb-1" style={{ letterSpacing: "1.5px" }}>
+                            <h5 className="fw-bold text-uppercase mb-1" style={{ color: accentColor, letterSpacing: "1.5px" }}>
                                 {seasonEpisodes[0]?._links?.show?.name}
                             </h5>
                             <h1 className="display-4 fw-bold mb-3">Season {singleSeasonData?.number}</h1>
@@ -205,7 +207,7 @@ export default function SingleSeasonDetailedPage() {
                                 onClick={() => navigate(`/show/${showId}/episode/${ep.id}`)}
                             >
                                 <div className="d-flex align-items-center gap-3">
-                                    <span className="fw-bold text-info fs-5">#{ep.number}</span>
+                                    <span className="fw-bold fs-5" style={{color: accentColor}}>#{ep.number}</span>
                                     <div>
                                         <h6 className="mb-0 fw-bold">{ep.name}</h6>
                                         <small className="text-muted">{ep.airdate}</small>

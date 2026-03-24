@@ -32,7 +32,7 @@ export default function SingleShowPage() {
 
     //^ Stato per la modale di valutazione
     const [ratingModal, setRatingModal] = useState<{
-    isOpen: boolean;
+        isOpen: boolean;
         type: 'episode' | 'season' | 'show';
         targetId: number; // Id episodio, numero stagione o id show
         targetName: string;
@@ -41,10 +41,10 @@ export default function SingleShowPage() {
 
     //§ ----- CONTEXT -----
     const { lists, addShowToList } = useList();
-    const { 
-        startWatching, 
-        getShowProgress, 
-        archiveShow, 
+    const {
+        startWatching,
+        getShowProgress,
+        archiveShow,
         toggleEpisodeStatus,
         markShowAsWatched,
         markSeasonAsWatched,
@@ -71,8 +71,8 @@ export default function SingleShowPage() {
         const firstUnwatchedEpisode = isBeingWatched.episodes.find(ep => !ep.sessionWatched);
 
         // Se esiste, restituiamo la sua stagione, altrimenti l'ultima stagione disponibile
-        return firstUnwatchedEpisode 
-            ? firstUnwatchedEpisode.episodeData.season 
+        return firstUnwatchedEpisode
+            ? firstUnwatchedEpisode.episodeData.season
             : Math.max(...isBeingWatched.episodes.map(ep => ep.episodeData.season));
     })();
 
@@ -185,7 +185,7 @@ export default function SingleShowPage() {
 
         // Se segnamo l'episodio come visto allora apriamo la modale per la valutazione
         if (!watchedStatus) {
-            setRatingModal({ isOpen: true, type: 'episode', targetId: episode.id, targetName: episode.name, currentVal: 0})
+            setRatingModal({ isOpen: true, type: 'episode', targetId: episode.id, targetName: episode.name, currentVal: 0 })
         }
     }
 
@@ -214,22 +214,22 @@ export default function SingleShowPage() {
     };
 
     // Consideriamo la pagina caricata se abbiamo almeno i dati base dello show
-    const isPageLoading = !singleShowData; 
+    const isPageLoading = !singleShowData;
 
     // Se vogliamo essere più sicuri, verifichiamo che i parametri siano pronti
-    if (!showId) return null; 
+    if (!showId) return null;
 
     if (error404) {
         return (
             <div className="p-4">
                 <button className="btn btn-outline-dark mb-4" onClick={() => navigate(-1)}>Back</button>
-                <div className="p-4 text-center alert alert-danger mx-auto" style={{maxWidth: "500px"}}>
+                <div className="p-4 text-center alert alert-danger mx-auto" style={{ maxWidth: "500px" }}>
                     <h4 className="alert-heading">Show non found!</h4>
                     <p>The Id <strong>{showId}</strong> does not correspond to any shows.</p>
                 </div>
             </div>
         );
-    } 
+    }
 
     if (error500) {
         return (
@@ -237,9 +237,9 @@ export default function SingleShowPage() {
                 <button className="btn btn-outline-dark mb-4" onClick={() => navigate(-1)}>Back</button>
                 <Error500 />
             </div>
-            
+
         );
-    } 
+    }
 
     if (isPageLoading) return (
         <div className="p-4 position-relative">
@@ -267,19 +267,19 @@ export default function SingleShowPage() {
         <div className="p-4 position-relative">
             <button className="btn btn-outline-dark mb-4 rounded-pill px-4 shadow-sm" onClick={() => navigate(-1)}>← Back</button>
             <h1>{singleShowData?.name}</h1>
-            
+
             <div className="d-flex gap-4 mb-4 flex-wrap">
                 {!posterImgLoaded && (
-                    <div className="d-flex align-items-center justify-content-center bg-secondary text-light" style={{borderRadius: "5px", height: "25rem", width: "17rem"}}>
+                    <div className="d-flex align-items-center justify-content-center bg-secondary text-light" style={{ borderRadius: "5px", height: "25rem", width: "17rem" }}>
                         <div className="spinner-border text-light" role="status">
                             <span className="visually-hidden"></span>
                         </div>
                     </div>
                 )}
-                
-                <img 
-                    src={imgOriginalMedium || defaultPoster} 
-                    alt={singleShowData?.name} 
+
+                <img
+                    src={imgOriginalMedium || defaultPoster}
+                    alt={singleShowData?.name}
                     onLoad={() => setPosterImgLoaded(true)}
                     onError={(e) => {
                         const target = e.target as HTMLImageElement;
@@ -287,9 +287,9 @@ export default function SingleShowPage() {
                         setPosterImgLoaded(true)
                     }}
                     style={{
-                        borderRadius: "5px", 
-                        objectFit: "cover", 
-                        height: "25rem", 
+                        borderRadius: "5px",
+                        objectFit: "cover",
+                        height: "25rem",
                         width: "17rem",
                         display: posterImgLoaded ? "block" : "none" // Usa none invece di rimuoverla dal DOM
                     }}
@@ -326,7 +326,7 @@ export default function SingleShowPage() {
                                         </button>
                                     </li>
                                     <li>
-                                        <button 
+                                        <button
                                             className="dropdown-item text-success"
                                             onClick={() => markShowAsWatched(Number(showId))}
                                         >
@@ -335,7 +335,7 @@ export default function SingleShowPage() {
                                     </li>
                                     <li>
                                         {isShowFullyWatched && (
-                                            <button 
+                                            <button
                                                 className="dropdown-item text-primary"
                                                 onClick={() => {
                                                     const confirmRewatch = window.confirm(
@@ -349,11 +349,11 @@ export default function SingleShowPage() {
                                                 🔄 Start Full Rewatch
                                             </button>
                                         )}
-                                                                        </li>
+                                    </li>
                                     <li><hr className="dropdown-divider" /></li>
                                     <li>
-                                        <button 
-                                            className="dropdown-item py-2 text-danger fw-bold d-flex align-items-center gap-2" 
+                                        <button
+                                            className="dropdown-item py-2 text-danger fw-bold d-flex align-items-center gap-2"
                                             onClick={() => deleteShowData(Number(showId))}
                                         >
                                             🗑️ Total Data Reset
@@ -369,7 +369,7 @@ export default function SingleShowPage() {
                                 className="btn btn-secondary dropdown-toggle"
                                 type="button"
                                 data-bs-toggle="dropdown"
-                                disabled={!singleShowData} 
+                                disabled={!singleShowData}
                             >
                                 {singleShowData ? "Add to list" : "Loading..."}
                             </button>
@@ -401,10 +401,10 @@ export default function SingleShowPage() {
                                 )}
                             </ul>
                         </div>
-                        
+
                         {/* Pulsante per le immaggini della serie */}
                         <button type="button" className="btn btn-outline-warning" onClick={() => navigate(`/show/${showId}/images`)}>Show images</button>
-                        
+
                         <button type="button" className="alert alert-success p-2 my-0" onClick={() => setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: isBeingWatched?.showName || singleShowData?.name || "", currentVal: isBeingWatched?.userRating || 0 })}>
                             {isBeingWatched?.userRating ? (
                                 <>Your rating: <strong>{isBeingWatched?.userRating}/10 🍿</strong></>
@@ -428,7 +428,7 @@ export default function SingleShowPage() {
                 <p>{singleShowData?.summary?.replace(/<[^>]+>/g, '')}</p>
 
                 <h2 className="mt-5">Episodes</h2>
-                
+
                 {/* --- SELETTORE STAGIONE --- */}
                 <div className="d-flex align-items-center gap-3 mb-3">
                     <div className="dropdown">
@@ -438,8 +438,8 @@ export default function SingleShowPage() {
                         <ul className="dropdown-menu dropdown-menu-dark">
                             {seasonsDetails.map((season) => (
                                 <li key={season.id}>
-                                    <button 
-                                        className={`dropdown-item ${selectedSeason === season.number ? 'active' : ''}`} 
+                                    <button
+                                        className={`dropdown-item ${selectedSeason === season.number ? 'active' : ''}`}
                                         onClick={() => setSelectedSeason(season.number)}
                                     >
                                         Season {season.number}
@@ -451,14 +451,14 @@ export default function SingleShowPage() {
 
                     <div className="d-flex align-items-center gap-2 my-3">
                         {seasonWatchedCount > 0 && (
-                            <span className="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill">
+                            <span className="badge bg-success-subtle text-success-emphasis border border-success-subtle rounded-pill">
                                 {seasonWatchedCount > 1 ? `Rewatched ${seasonWatchedCount}x` : 'Compleated'}
                             </span>
                         )}
                     </div>
 
-                    <button 
-                        className="btn btn-outline-info btn-sm" 
+                    <button
+                        className="btn btn-outline-info btn-sm"
                         disabled={seasonsDetails.length === 0} // Disabilita se i dati non sono pronti
                         onClick={() => {
                             const season = seasonsDetails.find(s => s.number === selectedSeason);
@@ -480,10 +480,10 @@ export default function SingleShowPage() {
                             <button className={`btn btn-sm ${isShowFullyWatched ? 'btn-danger' : 'btn-success'}`} onClick={handleMarkShow}>
                                 {isShowFullyWatched ? 'Unmark entire show' : 'Mark entire show as watched'}
                             </button>
-                            
+
                             {/* Tasto Rewatch Stagione */}
                             {isSeasonFullyWatched && (
-                                <button 
+                                <button
                                     className="btn btn-sm btn-outline-primary px-3"
                                     onClick={() => {
                                         if (window.confirm(`Vuoi resettare il progresso della Stagione ${selectedSeason} per rivederla?`)) {
@@ -519,7 +519,7 @@ export default function SingleShowPage() {
                         No episodes available for this season at the moment.
                     </div>
                 ) : (null)}
-                
+
                 {episodesData.filter((ep) => ep.season === selectedSeason).map((episode) => {
                     const epProg = isBeingWatched?.episodes.find(e => e.episodeId === episode.id);
                     const watchedStatus = epProg?.sessionWatched;
@@ -528,41 +528,41 @@ export default function SingleShowPage() {
 
                     return (
                         <div key={episode.id} className="glass-card d-flex align-items-center p-2 mb-2 shadow-sm transition-all" style={{ borderRadius: "12px" }}>
-                            
-                            <img 
-                                src={episode.image?.medium || episode.image?.original || defaultEpisodePoster} 
-                                alt={episode?.name} 
+
+                            <img
+                                src={episode.image?.medium || episode.image?.original || defaultEpisodePoster}
+                                alt={episode?.name}
                                 style={{ borderRadius: "8px", objectFit: "cover", width: "8rem", height: "4.5rem" }}
                             />
-                            
+
                             <div className="mx-3 flex-grow-1">
                                 <div className="d-flex align-items-center gap-2">
                                     <p className="mb-0"><strong>{episode.season}X{episode.number}</strong></p>
-                                    
+
                                     {/* Badge Unificato Visioni */}
                                     {/* Badge Unificato Visioni - Versione Refactored */}
-                                {totalViews > 0 && (
-                                    <span className="badge rounded-pill bg-success-subtle text-success border border-success-subtle" style={{ fontSize: '0.7rem' }}>
-                                        ✓ Watched {totalViews > 1 ? `${totalViews} times` : ''}
-                                    </span>
-                                )}
-                            </div>
-                                <p className="mb-0 text-truncate" style={{maxWidth: "250px"}}>{episode.name}</p>
+                                    {totalViews > 0 && (
+                                        <span className="badge rounded-pill bg-success-subtle text-success border border-success-subtle" style={{ fontSize: '0.7rem' }}>
+                                            ✓ Watched {totalViews > 1 ? `${totalViews} times` : ''}
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="mb-0 text-truncate" style={{ maxWidth: "250px" }}>{episode.name}</p>
                                 {userRating ? (
-                                    <small className="fw-bold" style={{color: getRatingColor(userRating)}}>
+                                    <small className="fw-bold" style={{ color: getRatingColor(userRating) }}>
                                         Rating: {userRating}/10
                                     </small>
                                 ) : null}
                             </div>
-                            
+
                             <button className="btn btn-sm btn-outline-info rounded-pill px-3 me-2" onClick={() => navigate(`/show/${singleShowData?.id}/episode/${episode.id}`)}>info</button>
 
                             {isBeingWatched && (
                                 <div className="dropdown">
-                                    <button className={`btn btn-sm rounded-circle ${watchedStatus ? 'btn-success' : 'btn-outline-secondary'}`} type="button" data-bs-toggle="dropdown" style={{width: "32px", height: "32px", padding: 0}}>
+                                    <button className={`btn btn-sm rounded-circle ${watchedStatus ? 'btn-success' : 'btn-outline-secondary'}`} type="button" data-bs-toggle="dropdown" style={{ width: "32px", height: "32px", padding: 0 }}>
                                         {watchedStatus ? '✓' : '+'}
                                     </button>
-                                    <ul className="dropdown-menu dropdown-menu-end shadow border-0" style={{borderRadius: "12px"}}>
+                                    <ul className="dropdown-menu dropdown-menu-end shadow border-0" style={{ borderRadius: "12px" }}>
                                         <li>
                                             <button className="dropdown-item py-2" onClick={() => handleToggleEpisode(episode)}>
                                                 {watchedStatus ? 'Mark as unwatched' : 'Mark as watched'}
@@ -592,11 +592,11 @@ export default function SingleShowPage() {
                 <h2>Cast</h2>
                 <div className="d-flex flex-row flex-wrap">
                     {cast.map((cast) => {
-                        return(
+                        return (
                             <div className="p-2 m-2 border" style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/actor/${cast.person.id}`)}>
-                                <img 
+                                <img
                                     src={cast.person.image?.medium || cast.person.image?.original}
-                                    style={{ height: "50px", borderRadius: "100%" }} 
+                                    style={{ height: "50px", borderRadius: "100%" }}
                                 />
                                 <p>{cast.person.name}</p>
                                 <p>{cast.character.name}</p>
@@ -607,7 +607,7 @@ export default function SingleShowPage() {
             </div>
 
             {/* --- MODALE DI VALUTAZIONE ESTERNA --- */}
-            <RatingModal 
+            <RatingModal
                 isOpen={ratingModal.isOpen}
                 targetName={ratingModal.targetName}
                 initialVal={ratingModal.currentVal}
@@ -617,7 +617,7 @@ export default function SingleShowPage() {
                     if (ratingModal.type === 'episode') rateEpisode(Number(showId), ratingModal.targetId, votoFinale ?? 0);
                     if (ratingModal.type === 'season') rateSeason(Number(showId), ratingModal.targetId, votoFinale ?? 0);
                     if (ratingModal.type === 'show') rateShow(Number(showId), votoFinale ?? 0);
-                    
+
                     // Chiudiamo la modale
                     setRatingModal({ ...ratingModal, isOpen: false });
                 }}

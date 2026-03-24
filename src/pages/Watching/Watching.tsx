@@ -174,7 +174,7 @@ export default function Watching() {
 
             {/* --- SEZIONE ARCHIVIO (Grafica Originale) --- */}
             <div className="mt-5 pt-4 border-top">
-                <button className="btn btn-outline-primary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseArchive">📦 ({archiveShow.length})</button>
+                <button className="btn btn-outline-primary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseArchive">📦 ({archivedShows.length})</button>
                 <div className="collapse" id="collapseArchive">
                     <div className="card card-body bg-light border-0 shadow-sm">
                         {archivedShows.length > 0 ? (

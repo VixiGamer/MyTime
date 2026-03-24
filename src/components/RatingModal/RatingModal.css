@@ -9,3 +9,18 @@
     height: 8px;
     border-radius: 10px;
 }
+
+/*? Per cambiare il colore della pallina dello slider */
+.custom-slider::-webkit-slider-thumb {
+  background: #212529;
+}
+.custom-slider:active::-webkit-slider-thumb {
+  background: #6c757d; /* colore quando premuto */
+}
+
+.custom-slider::-moz-range-thumb {
+  background: #212529;
+}
+.custom-slider:active::-moz-range-thumb {
+  background: #6c757d;
+}

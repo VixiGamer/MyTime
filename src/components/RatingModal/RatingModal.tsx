@@ -59,11 +59,20 @@ export default function RatingModal({ isOpen, targetName, initialVal = 0, onClos
                             ))}
                         </div>
 
-                        <div className="px-3 mb-4">
-                            <label className="form-label small text-muted mb-3">Drag for decimal precision (e.g. 8.5)</label>
+                        <div className="d-flex align-items-center gap-2">
+                            {/* Pulsante per diminuire di 0.1 */}
+                            <button 
+                                className="btn btn-sm btn-outline-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                                style={{ width: "32px", height: "32px", flexShrink: 0 }}
+                                onClick={() => setRating(prev => Math.max(0, parseFloat((prev - 0.1).toFixed(1))))}
+                            >
+                                -
+                            </button>
+
+                            {/* Lo slider originale */}
                             <input 
                                 type="range" 
-                                className="form-range custom-range" 
+                                className="form-range custom-slider custom-range flex-grow-1" 
                                 min="0" max="10" step="0.1"
                                 value={rating}
                                 onChange={(e) => setRating(parseFloat(e.target.value))}
@@ -75,19 +84,28 @@ export default function RatingModal({ isOpen, targetName, initialVal = 0, onClos
                                         rating < 8 ? '#32C781' : '#198754'
                                 }}
                             />
+
+                            {/* Pulsante per aumentare di 0.1 */}
+                            <button 
+                                className="btn btn-sm btn-outline-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                                style={{ width: "32px", height: "32px", flexShrink: 0 }}
+                                onClick={() => setRating(prev => Math.min(10, parseFloat((prev + 0.1).toFixed(1))))}
+                            >
+                                +
+                            </button>
                         </div>
                     </div>
 
                     <div className="modal-footer border-0 p-4 pt-0">
                         <div className="row w-100 g-2">
                             <div className="col-6">
-                                <button className="btn btn-light w-100 py-2 fw-semibold text-muted border-0" onClick={onClose}>Cancel</button>
+                                <button className="btn btn-light w-100 py-2 fw-semibold text-muted border border-muted" onClick={onClose}>Cancel</button>
                             </div>
                             <div className="col-6">
-                                <button className="btn bg-danger-subtle border-danger text-danger w-100 py-2 fw-bold shadow-sm" onClick={() => onSubmit(null)}>Remove Rating</button>
+                                <button className="btn bg-danger-subtle border-danger-subtle text-danger w-100 py-2 fw-bold shadow-sm" onClick={() => onSubmit(null)}>Remove Rating</button>
                             </div>
                             <div className="col-12">
-                                <button className="btn bg-success-subtle border-secondary border-opacity-0 text-success w-100 py-2 fw-bold shadow-sm" onClick={() => onSubmit(rating)}>Save Rating</button>
+                                <button className="btn bg-success-subtle border-success-subtle border-opacity-0 text-success w-100 py-2 fw-bold shadow-sm" onClick={() => onSubmit(rating)}>Save Rating</button>
                             </div>
                         </div>
                     </div>
