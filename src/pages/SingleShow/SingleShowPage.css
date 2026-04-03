@@ -1,0 +1,79 @@
+.blue-button-glass {
+    background-color: rgb(13, 202, 240, 0.4);
+    border: 1px solid rgb(13, 202, 240);
+    color: var(--text-main);
+    padding: 5px 10px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-radius: 25px !important;
+}
+
+.gray-button-glass{
+    background-color: rgb(108, 117, 125, 0.3);
+    border: 1px solid rgb(108, 117, 125, 0.6);
+    color: var(--text-main);
+    padding: 5px 10px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-radius: 25px !important;
+}
+
+.yellow-button-glass {
+    background-color: rgb(255, 193, 7, 0.4);
+    border: 1px solid rgb(255, 193, 7);
+    color: var(--text-main);
+    padding: 5px 10px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-radius: 25px !important;
+}
+
+.pink-button-glass {
+    background-color: rgb(214, 51, 132, 0.4);
+    border: 1px solid rgb(214, 51, 132);
+    color: var(--text-main);
+    padding: 5px 10px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-radius: 25px !important;
+}
+
+.red-button-glass {
+    background-color: rgb(220, 53, 69, 0.5);
+    border: 1px solid rgb(220, 53, 69);
+    color: var(--text-main);
+    padding: 5px 10px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-radius: 25px !important;
+}
+
+.lightgreen-button-glass {
+    background-color: rgb(31, 169, 109, 0.4);
+    border: 1px solid rgb(31, 169, 109);
+    color: var(--text-main);
+    padding: 5px 10px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-radius: 25px !important;
+}
+
+.green-button-glass {
+    background-color: rgb(25, 135, 84, 0.5);
+    border: 1px solid rgb(25, 135, 84);
+    color: var(--text-main);
+    padding: 5px 10px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-radius: 25px !important;
+}
+
+.rate-button-glass {
+    background-color: rgb(108, 117, 125, 0.7);
+    border: 1px solid rgb(108, 117, 125, 0.9);
+    color: var(--text-main);
+    padding: 5px 10px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-radius: 25px !important;
+}

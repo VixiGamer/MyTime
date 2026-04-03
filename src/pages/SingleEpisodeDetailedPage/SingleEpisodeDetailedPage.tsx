@@ -145,7 +145,7 @@ export default function SingleEpisodeDetailedPage() {
                                         }}
                                         onClick={() => setIsRatingModalOpen(true)}
                                     >
-                                        {userEpisodeRating > 0 ? `Rating: ${userEpisodeRating}/10 🍿` : "⭐ Rate Episode"}
+                                        {userEpisodeRating > 0 ? `Rating: ${userEpisodeRating}/10 🍿` : "🍿 Rate Episode"}
                                     </button>
 
                                     {/* Badge Conteggio Totale Storico */}

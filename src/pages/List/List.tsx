@@ -96,7 +96,7 @@ export default function List() {
                                     return(
                                         <div 
                                             key={show.id} 
-                                            className="card border-0 shadow-sm list-item-card transition-all"
+                                            className="glass-card card border-0 shadow-sm list-item-card transition-all"
                                             style={{ borderRadius: "15px", cursor: "pointer" }}
                                             onClick={() => navigate(`/show/${show.id}`)}
                                         >

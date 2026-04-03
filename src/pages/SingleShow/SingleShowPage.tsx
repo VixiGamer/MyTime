@@ -12,6 +12,7 @@ import defaultPoster from "../../images/poster_default.png";
 import defaultEpisodePoster from "../../images/episode_default.png";
 import Error500 from "../../components/Error500/Error500";
 import { getRatingColor } from "../../utils/ratingHelper"
+import "./SingleShowPage.css"
 
 
 export default function SingleShowPage() {
@@ -99,6 +100,8 @@ export default function SingleShowPage() {
     const seasonProg = isBeingWatched?.seasons?.find(s => s.seasonNumber === selectedSeason);
     const isSeasonFullyWatched = currentSeasonEpisodes?.length && currentSeasonEpisodes.every(ep => ep.sessionWatched);
     const seasonWatchedCount = seasonProg?.sessionCount || 0;               //^ Conteggio Stagione Selezionata
+    const selectedSeasonDetails = seasonsDetails.find((season) => season.number === selectedSeason);
+    const selectedSeasonPoster = selectedSeasonDetails?.image?.original || selectedSeasonDetails?.image?.medium;
 
     //* Fech dei dettagli della serie, senza gli episodi
     useEffect(() => {
@@ -264,364 +267,433 @@ export default function SingleShowPage() {
     ));
 
     return (
-        <div className="p-4 position-relative">
-            <button className="btn btn-outline-dark mb-4 rounded-pill px-4 shadow-sm" onClick={() => navigate(-1)}>← Back</button>
-            <h1>{singleShowData?.name}</h1>
+        <>
+            {/* Background sfocato */}
+            <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                backgroundImage: `url(${imgOriginalMedium || defaultPoster})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundAttachment: 'fixed',
+                filter: 'blur(30px)',
+                zIndex: -1
+            }} />
+            
+            <div className="p-4 container position-relative">
+                <button className="btn btn-outline-dark mb-4 rounded-pill px-4 shadow-sm" onClick={() => navigate(-1)}>
+                    ← Back
+                </button>
 
-            <div className="d-flex gap-4 mb-4 flex-wrap">
-                {!posterImgLoaded && (
-                    <div className="d-flex align-items-center justify-content-center bg-secondary text-light" style={{ borderRadius: "5px", height: "25rem", width: "17rem" }}>
-                        <div className="spinner-border text-light" role="status">
-                            <span className="visually-hidden"></span>
-                        </div>
-                    </div>
-                )}
-
-                <img
-                    src={imgOriginalMedium || defaultPoster}
-                    alt={singleShowData?.name}
-                    onLoad={() => setPosterImgLoaded(true)}
-                    onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = defaultPoster;
-                        setPosterImgLoaded(true)
-                    }}
-                    style={{
-                        borderRadius: "5px",
-                        objectFit: "cover",
-                        height: "25rem",
-                        width: "17rem",
-                        display: posterImgLoaded ? "block" : "none" // Usa none invece di rimuoverla dal DOM
-                    }}
-                />
-                <div>
-                    {!singleShowData?.premiered ? (
-                        <p>Dates unavalible</p>
-                    ) : (
-                        <p>{singleShowData?.premiered} | {singleShowData?.ended || "Still running"}</p>
-                    )}
-                    <p><strong>Rating:</strong> {singleShowData?.rating?.average || "No rating available"}</p>
-                    <p><strong>Status:</strong> {singleShowData?.status}</p>
-                    <p><strong>Genere:</strong> {singleShowData?.genres?.join(", ") || "No genres available"}</p>
-                    <p><strong>Number of Seasons:</strong> {numberOfSeasons}</p>
-                    <p><strong>Total episodes:</strong> {numberOfEpisodes}</p>
-                    {singleShowData?.officialSite && (
-                        <a href={singleShowData?.officialSite} target="_blank" rel="noopener noreferrer">Official Site</a>
-                    )}
-
-                    <div className="d-flex gap-2 align-items-center mt-3">
-                        {/* --- PULSANTE WATCHING --- */}
-                        {!isBeingWatched ? (
-                            <button className="btn btn-primary" onClick={handleStartWatching}>Start Watching</button>
-                        ) : (
-                            <div className="dropdown">
-                                <button className="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    {isBeingWatched.isArchived ? "Archived" : "Currently Watching"}
-                                </button>
-                                <ul className="dropdown-menu">
-                                    <li><button className="dropdown-item" onClick={() => navigate(`/watching`)}>Go to Watching</button></li>
-                                    <li>
-                                        <button className="dropdown-item" onClick={() => archiveShow(Number(showId))}>
-                                            {isBeingWatched.isArchived ? "Restore from Archive" : "Archive"}
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button
-                                            className="dropdown-item text-success"
-                                            onClick={() => markShowAsWatched(Number(showId))}
-                                        >
-                                            ✓ Mark Entire Show as Watched
-                                        </button>
-                                    </li>
-                                    <li>
-                                        {isShowFullyWatched && (
-                                            <button
-                                                className="dropdown-item text-primary"
-                                                onClick={() => {
-                                                    const confirmRewatch = window.confirm(
-                                                        `Start a new Rewatch for "${singleShowData?.name}"? Your current progress will be reset but your all time history will remain saved.`
-                                                    );
-                                                    if (confirmRewatch) {
-                                                        startRewatch(Number(showId));
-                                                    }
-                                                }}
-                                            >
-                                                🔄 Start Full Rewatch
-                                            </button>
-                                        )}
-                                    </li>
-                                    <li><hr className="dropdown-divider" /></li>
-                                    <li>
-                                        <button
-                                            className="dropdown-item py-2 text-danger fw-bold d-flex align-items-center gap-2"
-                                            onClick={() => deleteShowData(Number(showId))}
-                                        >
-                                            🗑️ Total Data Reset
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                        )}
-
-                        {/* --- PULSANTE LISTE --- */}
-                        <div className="dropdown">
-                            <button
-                                className="btn btn-secondary dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                disabled={!singleShowData}
-                            >
-                                {singleShowData ? "Add to list" : "Loading..."}
-                            </button>
-                            <ul className="dropdown-menu">
-                                {lists.length === 0 ? (
-                                    <li className="dropdown-item disabled">No lists available</li>
-                                ) : (
-                                    lists.map((list) => {
-                                        const isAlreadyInThisList = list.shows?.some((show) => show.id === Number(showId));
-                                        return (
-                                            <li key={list.listId}>
-                                                <button
-                                                    type="button"
-                                                    className={`dropdown-item ${isAlreadyInThisList ? 'disabled' : ''}`}
-                                                    disabled={isAlreadyInThisList}
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        if (!isAlreadyInThisList && singleShowData) {
-                                                            addShowToList(list.listId, singleShowData);
-                                                        }
-                                                    }}
-                                                    style={isAlreadyInThisList ? { opacity: 0.6 } : {}}
-                                                >
-                                                    {list.listName} {isAlreadyInThisList && " (In list)"}
-                                                </button>
-                                            </li>
-                                        );
-                                    })
+                <div className="glass-card p-4 mb-5 shadow-lg border-0">
+                    <div className="row g-4">
+                        {/* Poster Column */}
+                        <div className="col-md-4 col-lg-3">
+                            <div className="position-relative shadow-lg rounded-4 overflow-hidden">
+                                {!posterImgLoaded && (
+                                    <div className="d-flex align-items-center justify-content-center bg-dark text-light" style={{ height: "400px" }}>
+                                        <div className="spinner-border spinner-border-sm" role="status"></div>
+                                    </div>
                                 )}
-                            </ul>
+                                <img
+                                    src={imgOriginalMedium || defaultPoster}
+                                    alt={singleShowData?.name}
+                                    className="img-fluid w-100"
+                                    onLoad={() => setPosterImgLoaded(true)}
+                                    style={{ display: posterImgLoaded ? "block" : "none", objectFit: "cover", minHeight: "400px" }}
+                                />
+                            </div>
                         </div>
 
-                        {/* Pulsante per le immaggini della serie */}
-                        <button type="button" className="btn btn-outline-warning" onClick={() => navigate(`/show/${showId}/images`)}>Show images</button>
-
-                        <button type="button" className="alert alert-success p-2 my-0" onClick={() => setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: isBeingWatched?.showName || singleShowData?.name || "", currentVal: isBeingWatched?.userRating || 0 })}>
-                            {isBeingWatched?.userRating ? (
-                                <>Your rating: <strong>{isBeingWatched?.userRating}/10 🍿</strong></>
-                            ) : (
-                                <>Rate this show</>
-                            )}
-                        </button>
-
-
-                        {totalShowWatchedCount > 0 && (
-                            <span className="badge rounded-pill bg-info text-dark px-3 py-2 shadow-sm">
-                                🔄 Show seen {totalShowWatchedCount} {totalShowWatchedCount === 1 ? 'time' : 'times'}
-                            </span>
-                        )}
-
-                    </div>
-                </div>
-            </div>
-
-            <div className="mt-4">
-                <p>{singleShowData?.summary?.replace(/<[^>]+>/g, '')}</p>
-
-                <h2 className="mt-5">Episodes</h2>
-
-                {/* --- SELETTORE STAGIONE --- */}
-                <div className="d-flex align-items-center gap-3 mb-3">
-                    <div className="dropdown">
-                        <button className="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            Season {selectedSeason}
-                        </button>
-                        <ul className="dropdown-menu dropdown-menu-dark">
-                            {seasonsDetails.map((season) => (
-                                <li key={season.id}>
-                                    <button
-                                        className={`dropdown-item ${selectedSeason === season.number ? 'active' : ''}`}
-                                        onClick={() => setSelectedSeason(season.number)}
-                                    >
-                                        Season {season.number}
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className="d-flex align-items-center gap-2 my-3">
-                        {seasonWatchedCount > 0 && (
-                            <span className="badge bg-success-subtle text-success-emphasis border border-success-subtle rounded-pill">
-                                {seasonWatchedCount > 1 ? `Rewatched ${seasonWatchedCount}x` : 'Compleated'}
-                            </span>
-                        )}
-                    </div>
-
-                    <button
-                        className="btn btn-outline-info btn-sm"
-                        disabled={seasonsDetails.length === 0} // Disabilita se i dati non sono pronti
-                        onClick={() => {
-                            const season = seasonsDetails.find(s => s.number === selectedSeason);
-                            if (season) {
-                                navigate(`/show/${singleShowData?.id}/season/${season.id}`);
-                            }
-                        }}
-                    >
-                        Season {selectedSeason} info
-                    </button>
-
-
-                    {/* Solo se stiamo guardando la serie */}
-                    {isBeingWatched && (
-                        <>
-                            <button className={`btn btn-sm ${isSeasonFullyWatched ? 'btn-outline-danger' : 'btn-outline-success'}`} onClick={() => handleMarkSeason(selectedSeason)}>
-                                {isSeasonFullyWatched ? `Unmark Season ${selectedSeason}` : `Mark Season ${selectedSeason} as watched`}
-                            </button>
-                            <button className={`btn btn-sm ${isShowFullyWatched ? 'btn-danger' : 'btn-success'}`} onClick={handleMarkShow}>
-                                {isShowFullyWatched ? 'Unmark entire show' : 'Mark entire show as watched'}
-                            </button>
-
-                            {/* Tasto Rewatch Stagione */}
-                            {isSeasonFullyWatched && (
+                        {/* Content Column */}
+                        <div className="col-md-8 col-lg-9 d-flex flex-column">
+                            <h1 className="display-4 fw-bold">{singleShowData?.name}</h1>
+                            <p className="fw-bold text-uppercase mb-3" style={{ color: "#2FA4D7", letterSpacing: "1.5px" }}>
+                                {singleShowData?.genres?.join(" • ") || "No genres available"}
+                            </p>
+                            {/* Action Buttons */}
+                            <div className="d-flex gap-3 mb-4 flex-wrap">
                                 <button
-                                    className="btn btn-sm btn-outline-primary px-3"
-                                    onClick={() => {
-                                        if (window.confirm(`Vuoi resettare il progresso della Stagione ${selectedSeason} per rivederla?`)) {
-                                            startSeasonRewatch(Number(showId), selectedSeason);
-                                        }
+                                    className="btn rounded-pill px-4 py-2 fw-bold shadow-sm transition-all"
+                                    style={{
+                                        backgroundColor: Number(isBeingWatched?.userRating) > 0 ? getRatingColor(Number(isBeingWatched?.userRating)) : 'rgba(0,0,0,0.1)',
+                                        color: Number(isBeingWatched?.userRating) === 10 ? '#000' : (Number(isBeingWatched?.userRating) > 0 ? '#fff' : 'var(--text-main)'),
+                                        border: 'none'
                                     }}
+                                    onClick={() => setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: isBeingWatched?.showName || singleShowData?.name || "", currentVal: isBeingWatched?.userRating || 0 })}
                                 >
-                                    🔄 Rewatch Season {selectedSeason}
+                                    {Number(isBeingWatched?.userRating) > 0 ? `Your rating: ${isBeingWatched?.userRating}/10 🍿` : "🍿 Rate Show"}
                                 </button>
-                            )}
-                        </>
-                    )}
 
-                    <button type="button" className="alert alert-success p-2 my-0" onClick={() => setRatingModal({ isOpen: true, type: 'season', targetId: selectedSeason, targetName: `Season ${selectedSeason}`, currentVal: seasonProg?.userRating || 0 })}>
-                        {currentSeasonProgress?.userRating ? (
-                            <>Season {selectedSeason}: <strong>{currentSeasonProgress.userRating}/10 🍿</strong></>
-                        ) : (
-                            <>Rate Season {selectedSeason}</>
-                        )}
-                    </button>
+                                {totalShowWatchedCount > 0 && (
+                                    <span className="gray-button-glass d-flex align-items-center px-3">
+                                        Total Views: {totalShowWatchedCount}
+                                    </span>
+                                )}
+                            </div>
 
-                </div>
-
-                {/* --- LISTA EPISODI --- */}
-
-                {/* 1. Stato: Caricamento in corso */}
-                {isEpisodesLoading && episodeSkeletons}
-
-                {/* 2. Stato: Caricamento finito MA l'array è vuoto */}
-                {!episodesData.filter((ep) => ep.season === selectedSeason).length ? (
-                    <div className="alert alert-info text-center mt-3">
-                        <i className="bi bi-info-circle me-2"></i>
-                        No episodes available for this season at the moment.
-                    </div>
-                ) : (null)}
-
-                {episodesData.filter((ep) => ep.season === selectedSeason).map((episode) => {
-                    const epProg = isBeingWatched?.episodes.find(e => e.episodeId === episode.id);
-                    const watchedStatus = epProg?.sessionWatched;
-                    const userRating = epProg?.userRating;
-                    const totalViews = Number(epProg?.sessionCount || 0);
-
-                    return (
-                        <div key={episode.id} className="glass-card d-flex align-items-center p-2 mb-2 shadow-sm transition-all" style={{ borderRadius: "12px" }}>
-
-                            <img
-                                src={episode.image?.medium || episode.image?.original || defaultEpisodePoster}
-                                alt={episode?.name}
-                                style={{ borderRadius: "8px", objectFit: "cover", width: "8rem", height: "4.5rem" }}
-                            />
-
-                            <div className="mx-3 flex-grow-1">
-                                <div className="d-flex align-items-center gap-2">
-                                    <p className="mb-0"><strong>{episode.season}X{episode.number}</strong></p>
-
-                                    {/* Badge Unificato Visioni */}
-                                    {/* Badge Unificato Visioni - Versione Refactored */}
-                                    {totalViews > 0 && (
-                                        <span className="badge rounded-pill bg-success-subtle text-success border border-success-subtle" style={{ fontSize: '0.7rem' }}>
-                                            ✓ Watched {totalViews > 1 ? `${totalViews} times` : ''}
-                                        </span>
+                            {/* Info Grid */}
+                            <div className="row row-cols-2 row-cols-lg-5 g-3 mb-4">
+                                <div className="col">
+                                    <small className="text-muted d-block">Premiere</small>
+                                    <strong>{singleShowData?.premiered || "N/A"}</strong>
+                                </div>
+                                <div className="col">
+                                    <small className="text-muted d-block">End</small>
+                                    <strong>{singleShowData?.ended || "Still running"}</strong>
+                                </div>
+                                <div className="col">
+                                    <small className="text-muted d-block">Seasons</small>
+                                    <strong>{numberOfSeasons}</strong>
+                                </div>
+                                <div className="col">
+                                    <small className="text-muted d-block">Episodes</small>
+                                    <strong>{numberOfEpisodes}</strong>
+                                </div>
+                                <div className="col">
+                                    <small className="text-muted d-block">TVMaze Rating</small>
+                                    <strong>{singleShowData?.rating?.average === null ? "N/A" : "⭐️ " + singleShowData?.rating?.average}</strong>
+                                </div>
+                                <div className="col">
+                                    <small className="text-muted d-block">Network</small>
+                                    <strong>{singleShowData?.network?.name || singleShowData?.webChannel?.name || "N/A"}</strong>
+                                </div>
+                                <div className="col">
+                                    <small className="text-muted d-block">Country</small>
+                                    <strong>{singleShowData?.network?.country?.name || "N/A"}</strong>
+                                </div>
+                                <div className="col">
+                                    <small className="text-muted d-block">Show ID</small>
+                                    <strong>#{singleShowData?.id}</strong>
+                                </div>
+                                <div className="col">
+                                    <small className="text-muted d-block">Official Site</small>
+                                    {!singleShowData?.officialSite ? (
+                                        <span>Not available</span>
+                                    ) : (
+                                        <a href={singleShowData.officialSite} target="_blank" rel="noopener noreferrer" className="text-decoration-none">
+                                            Visit Site
+                                        </a>
                                     )}
                                 </div>
-                                <p className="mb-0 text-truncate" style={{ maxWidth: "250px" }}>{episode.name}</p>
-                                {userRating ? (
-                                    <small className="fw-bold" style={{ color: getRatingColor(userRating) }}>
-                                        Rating: {userRating}/10
-                                    </small>
-                                ) : null}
                             </div>
 
-                            <button className="btn btn-sm btn-outline-info rounded-pill px-3 me-2" onClick={() => navigate(`/show/${singleShowData?.id}/episode/${episode.id}`)}>info</button>
+                            {singleShowData?.summary && (
+                                <div>
+                                    <h5 className="fw-bold">Summary</h5>
+                                    <p className="opacity-75 lead" style={{ fontSize: "1rem" }}>
+                                        {singleShowData.summary.replace(/<[^>]+>/g, '')}
+                                    </p>
+                                </div>
+                            )}
 
-                            {isBeingWatched && (
-                                <div className="dropdown">
-                                    <button className={`btn btn-sm rounded-circle ${watchedStatus ? 'btn-success' : 'btn-outline-secondary'}`} type="button" data-bs-toggle="dropdown" style={{ width: "32px", height: "32px", padding: 0 }}>
-                                        {watchedStatus ? '✓' : '+'}
-                                    </button>
-                                    <ul className="dropdown-menu dropdown-menu-end shadow border-0" style={{ borderRadius: "12px" }}>
-                                        <li>
-                                            <button className="dropdown-item py-2" onClick={() => handleToggleEpisode(episode)}>
-                                                {watchedStatus ? 'Mark as unwatched' : 'Mark as watched'}
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button className="dropdown-item py-2" onClick={() => rewatchEpisode(Number(showId), episode.id)}>
-                                                🔄 Rewatch Episode
-                                            </button>
-                                        </li>
-                                        {watchedStatus && (
+                            <div className="d-flex gap-3 mb-4 flex-wrap">
+                                {!isBeingWatched ? (
+                                    <button className="blue-button-glass" onClick={handleStartWatching}>Start Watching</button>
+                                ) : (
+                                    <div className="dropdown">
+                                        <button className="blue-button-glass dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            {isBeingWatched.isArchived ? "Archived" : "Currently Watching"}
+                                        </button>
+                                        <ul className="dropdown-menu glass-card">
+                                            <li><button className="dropdown-item" onClick={() => navigate(`/watching`)}>Go to Watching</button></li>
                                             <li>
-                                                <button className="dropdown-item py-2" onClick={() => setRatingModal({ isOpen: true, type: 'episode', targetId: episode.id, targetName: episode.name, currentVal: userRating || 0 })}>
-                                                    Rate episode
+                                                <button className="dropdown-item" onClick={() => archiveShow(Number(showId))}>
+                                                    {isBeingWatched.isArchived ? "Restore from Archive" : "Archive"}
                                                 </button>
                                             </li>
+                                            <li>
+                                                <button
+                                                    className="dropdown-item text-success"
+                                                    onClick={() => markShowAsWatched(Number(showId))}
+                                                >
+                                                    ✓ Mark Entire Show as Watched
+                                                </button>
+                                            </li>
+                                            <li>
+                                                {isShowFullyWatched && (
+                                                    <button
+                                                        className="dropdown-item text-primary"
+                                                        onClick={() => {
+                                                            const confirmRewatch = window.confirm(
+                                                                `Start a new Rewatch for "${singleShowData?.name}"? Your current progress will be reset but your all time history will remain saved.`
+                                                            );
+                                                            if (confirmRewatch) {
+                                                                startRewatch(Number(showId));
+                                                            }
+                                                        }}
+                                                    >
+                                                        🔄 Start Full Rewatch
+                                                    </button>
+                                                )}
+                                            </li>
+                                            <li><hr className="dropdown-divider" /></li>
+                                            <li>
+                                                <button
+                                                    className="dropdown-item py-2 text-danger fw-bold d-flex align-items-center gap-2"
+                                                    onClick={() => deleteShowData(Number(showId))}
+                                                >
+                                                    🗑️ Total Data Reset
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                )
+                                }
+
+                                {/* --- PULSANTE LISTE --- */}
+                                <div className="dropdown">
+                                    <button
+                                        className="gray-button-glass dropdown-toggle"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        disabled={!singleShowData}
+                                    >
+                                        {singleShowData ? "Add to list" : "Loading..."}
+                                    </button>
+                                    <ul className="dropdown-menu glass-card">
+                                        {lists.length === 0 ? (
+                                            <li className="dropdown-item disabled">No lists available</li>
+                                        ) : (
+                                            lists.map((list) => {
+                                                const isAlreadyInThisList = list.shows?.some((show) => show.id === Number(showId));
+                                                return (
+                                                    <li key={list.listId}>
+                                                        <button
+                                                            type="button"
+                                                            className={`dropdown-item ${isAlreadyInThisList ? 'disabled' : ''}`}
+                                                            disabled={isAlreadyInThisList}
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                if (!isAlreadyInThisList && singleShowData) {
+                                                                    addShowToList(list.listId, singleShowData);
+                                                                }
+                                                            }}
+                                                            style={isAlreadyInThisList ? { opacity: 0.6 } : {}}
+                                                        >
+                                                            {list.listName} {isAlreadyInThisList && " (In list)"}
+                                                        </button>
+                                                    </li>
+                                                );
+                                            })
                                         )}
                                     </ul>
                                 </div>
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
 
-            <div>
-                <h2>Cast</h2>
-                <div className="d-flex flex-row flex-wrap">
-                    {cast.map((cast) => {
-                        return (
-                            <div className="p-2 m-2 border" style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/actor/${cast.person.id}`)}>
-                                <img
-                                    src={cast.person.image?.medium || cast.person.image?.original}
-                                    style={{ height: "50px", borderRadius: "100%" }}
-                                />
-                                <p>{cast.person.name}</p>
-                                <p>{cast.character.name}</p>
+                                {/* Pulsante per le immaggini della serie */}
+                                <button type="button" className="lightgreen-button-glass" onClick={() => navigate(`/show/${showId}/images`)}>Show images</button>
                             </div>
-                        )
-                    })}
+
+
+                        </div>
+                    </div>
                 </div>
+
+                <div>
+                    {/* --- LISTA EPISODI --- */}
+                    <div className="glass-card" style={{ marginTop: "9rem" }}>
+                        <div className="d-flex align-items-end m-3">
+                            <img src={selectedSeasonPoster || defaultPoster} alt={`Season ${selectedSeason}`} className="shadow-lg" style={{ height: "10rem", borderRadius: "15px", position: "absolute"}} />     
+                            
+                            <div className="d-flex align-items-end gap-3" style={{marginLeft: "9rem"}}>
+                                {/* Dropdown per selezionare la stazione */}
+                                <div className="dropdown">
+                                    <button className="gray-button-glass dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        Season {selectedSeason}
+                                    </button>
+                                    <ul className="dropdown-menu glass-card">
+                                        {seasonsDetails.map((season) => (
+                                            <li key={season.id}>
+                                                <button
+                                                    className={`dropdown-item ${selectedSeason === season.number ? 'active' : ''}`}
+                                                    onClick={() => setSelectedSeason(season.number)}
+                                                >
+                                                    Season {season.number}
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                {/* Badge se abbiamo visto la stagione se si quante volte */}
+                                <div className="d-flex align-items-center gap-2 my-3">
+                                    {seasonWatchedCount > 0 && (
+                                        <span className="badge bg-success-subtle text-success-emphasis border border-success-subtle rounded-pill">
+                                            {seasonWatchedCount > 1 ? `Rewatched ${seasonWatchedCount}x` : 'Compleated'}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Info sulla stagione */}
+                                <button
+                                    className="blue-button-glass btn-sm"
+                                    disabled={seasonsDetails.length === 0} // Disabilita se i dati non sono pronti
+                                    onClick={() => {
+                                        const season = seasonsDetails.find(s => s.number === selectedSeason);
+                                        if (season) {
+                                            navigate(`/show/${singleShowData?.id}/season/${season.id}`);
+                                        }
+                                    }}
+                                >
+                                    S{selectedSeason} info
+                                </button>
+
+                                {/* Solo se stiamo guardando la serie */}
+                                {isBeingWatched && (
+                                    <div className="dropdown">
+                                        <button className="lightgreen-button-glass dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Mark
+                                        </button>
+                                        <ul className="dropdown-menu glass-card">
+                                            <li><button className="dropdown-item" onClick={() => handleMarkSeason(selectedSeason)}>
+                                                {isSeasonFullyWatched ? `Unmark Season ${selectedSeason}` : `Mark Season ${selectedSeason} as watched`}
+                                            </button></li>
+                                            <li><button className="dropdown-item" onClick={handleMarkShow}>
+                                                {isShowFullyWatched ? 'Unmark entire show' : 'Mark entire show as watched'}
+                                            </button></li>
+                                            {isSeasonFullyWatched && (
+                                                <li><button className="dropdown-item" onClick={() => {
+                                                    if (window.confirm(`Vuoi resettare il progresso della Stagione ${selectedSeason} per rivederla?`)) {
+                                                        startSeasonRewatch(Number(showId), selectedSeason);
+                                                    }
+                                                }}>
+                                                    🔄 Rewatch Season {selectedSeason}
+                                                </button></li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {/* Rating della stagione */}
+                                <button type="button" className="alert alert-success p-2 my-0" onClick={() => setRatingModal({ isOpen: true, type: 'season', targetId: selectedSeason, targetName: `Season ${selectedSeason}`, currentVal: seasonProg?.userRating || 0 })}>
+                                    {currentSeasonProgress?.userRating ? (
+                                        <>Season {selectedSeason}: <strong>{currentSeasonProgress.userRating}/10 🍿</strong></>
+                                    ) : (
+                                        <>Rate Season {selectedSeason}</>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* 1. Stato: Caricamento in corso */}
+                        {isEpisodesLoading && episodeSkeletons}
+
+                        {/* 2. Stato: Caricamento finito MA l'array è vuoto */}
+                        {!episodesData.filter((ep) => ep.season === selectedSeason).length ? (
+                            <div className="alert alert-info text-center mt-3">
+                                <i className="bi bi-info-circle me-2"></i>
+                                No episodes available for this season at the moment.
+                            </div>
+                        ) : (null)}
+
+                        {episodesData.filter((ep) => ep.season === selectedSeason).map((episode, index, arr) => {
+                            const epProg = isBeingWatched?.episodes.find(e => e.episodeId === episode.id);
+                            const watchedStatus = epProg?.sessionWatched;
+                            const userRating = epProg?.userRating;
+                            const totalViews = Number(epProg?.sessionCount || 0);
+
+                            return (
+                                <>
+                                    <div key={episode.id} className="d-flex align-items-center p-2 m-2 transition-all" style={{ borderRadius: "12px" }}>
+                                        <img
+                                            src={episode.image?.medium || episode.image?.original || defaultEpisodePoster}
+                                            alt={episode?.name}
+                                            onClick={() => navigate(`/show/${singleShowData?.id}/episode/${episode.id}`)}
+                                            style={{ borderRadius: "15px", objectFit: "cover", width: "8rem", height: "4.5rem", cursor: "pointer" }}
+                                        />
+
+                                        <div className="mx-3 flex-grow-1">
+                                            <div className="d-flex align-items-center gap-2">
+                                                <p className="mb-0"><strong>{episode.season}X{episode.number}</strong></p>
+
+                                                {/* Badge Unificato Visioni */}
+                                                {totalViews > 0 && (
+                                                    <span className="badge rounded-pill bg-success-subtle text-success border border-success-subtle" style={{ fontSize: '0.7rem' }}>
+                                                        ✓ Watched {totalViews > 1 ? `${totalViews} times` : ''}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="mb-0 text-truncate" style={{ maxWidth: "250px" }}>{episode.name}</p>
+                                            {userRating ? (
+                                                <small className="fw-bold" style={{ color: getRatingColor(userRating) }}>
+                                                    Rating: {userRating}/10
+                                                </small>
+                                            ) : null}
+                                        </div>
+
+                                        {isBeingWatched && (
+                                            <div className="dropdown">
+                                                <button className={`btn btn-sm rounded-circle ${watchedStatus ? 'btn-success' : 'btn-outline-secondary'}`} type="button" data-bs-toggle="dropdown" style={{ width: "32px", height: "32px", padding: 0 }}>
+                                                    {watchedStatus ? '✓' : '+'}
+                                                </button>
+                                                <ul className="dropdown-menu dropdown-menu-end shadow border-0" style={{ borderRadius: "12px" }}>
+                                                    <li>
+                                                        <button className="dropdown-item py-2" onClick={() => handleToggleEpisode(episode)}>
+                                                            {watchedStatus ? 'Mark as unwatched' : 'Mark as watched'}
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <button className="dropdown-item py-2" onClick={() => rewatchEpisode(Number(showId), episode.id)}>
+                                                            🔄 Rewatch Episode
+                                                        </button>
+                                                    </li>
+                                                    {watchedStatus && (
+                                                        <li>
+                                                            <button className="dropdown-item py-2" onClick={() => setRatingModal({ isOpen: true, type: 'episode', targetId: episode.id, targetName: episode.name, currentVal: userRating || 0 })}>
+                                                                Rate episode
+                                                            </button>
+                                                        </li>
+                                                    )}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {index < arr.length - 1 && <hr className="my-0" style={{ marginLeft: 'calc(8rem + 2rem)', width: 'auto' }} />}
+                                </>
+                            );
+                        })}
+                    </div>
+
+                </div>
+
+                <div>
+                    <h2>Cast</h2>
+                    <div className="d-flex flex-row flex-wrap">
+                        {cast.map((cast) => {
+                            return (
+                                <div className="p-2 m-2 border" style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/actor/${cast.person.id}`)}>
+                                    <img
+                                        src={cast.person.image?.medium || cast.person.image?.original}
+                                        style={{ height: "50px", borderRadius: "100%" }}
+                                    />
+                                    <p>{cast.person.name}</p>
+                                    <p>{cast.character.name}</p>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+
+                {/* --- MODALE DI VALUTAZIONE ESTERNA --- */}
+                <RatingModal
+                    isOpen={ratingModal.isOpen}
+                    targetName={ratingModal.targetName}
+                    initialVal={ratingModal.currentVal}
+                    onClose={() => setRatingModal({ ...ratingModal, isOpen: false })}
+                    onSubmit={(votoFinale) => {
+                        // Applichiamo il voto usando la funzione giusta dal context
+                        if (ratingModal.type === 'episode') rateEpisode(Number(showId), ratingModal.targetId, votoFinale ?? 0);
+                        if (ratingModal.type === 'season') rateSeason(Number(showId), ratingModal.targetId, votoFinale ?? 0);
+                        if (ratingModal.type === 'show') rateShow(Number(showId), votoFinale ?? 0);
+
+                        // Chiudiamo la modale
+                        setRatingModal({ ...ratingModal, isOpen: false });
+                    }}
+                />
             </div>
-
-            {/* --- MODALE DI VALUTAZIONE ESTERNA --- */}
-            <RatingModal
-                isOpen={ratingModal.isOpen}
-                targetName={ratingModal.targetName}
-                initialVal={ratingModal.currentVal}
-                onClose={() => setRatingModal({ ...ratingModal, isOpen: false })}
-                onSubmit={(votoFinale) => {
-                    // Applichiamo il voto usando la funzione giusta dal context
-                    if (ratingModal.type === 'episode') rateEpisode(Number(showId), ratingModal.targetId, votoFinale ?? 0);
-                    if (ratingModal.type === 'season') rateSeason(Number(showId), ratingModal.targetId, votoFinale ?? 0);
-                    if (ratingModal.type === 'show') rateShow(Number(showId), votoFinale ?? 0);
-
-                    // Chiudiamo la modale
-                    setRatingModal({ ...ratingModal, isOpen: false });
-                }}
-            />
-        </div>
+        </>
     );
 }

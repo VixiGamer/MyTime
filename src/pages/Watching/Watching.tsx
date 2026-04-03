@@ -113,7 +113,7 @@ export default function Watching() {
                     const imgOriginalMedium = displayEpisode?.episodeData.image?.original || displayEpisode?.episodeData.image?.medium;
 
                     return (
-                        <div key={serie.showId} className="card p-3 d-flex flex-row position-relative shadow-sm" style={{ minHeight: "11rem", borderRadius: "10px" }}>
+                        <div key={serie.showId} className="glass-card card p-3 d-flex flex-row position-relative shadow-sm" style={{ minHeight: "11rem", borderRadius: "10px" }}>
                             
                             <div className="dropdown position-absolute top-0 end-0 m-3">
                                 <button className="btn btn-sm btn-light dropdown-toggle border" type="button" data-bs-toggle="dropdown">
@@ -138,7 +138,7 @@ export default function Watching() {
                                     src={imgOriginalMedium || defaultEpisodePoster}
                                     alt={displayEpisode?.episodeData?.name}
                                     onLoad={() => setEpisodeImgLoaded(true)}
-                                    style={{ borderRadius: "5px", objectFit: "cover", height: "100%", width: "100%", display: episodeImgLoaded ? "block" : "none" }}
+                                    style={{ borderRadius: "15px", objectFit: "cover", height: "100%", width: "100%", display: episodeImgLoaded ? "block" : "none" }}
                                 />
                             </div>
 
