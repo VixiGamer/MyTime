@@ -20,7 +20,7 @@ export default function Watching() {
         rateEpisode,
         rateSeason
     } = useWatching();
-    
+
     const navigate = useNavigate();
 
     //§ --- STATO DELLA MODALE DI VALUTAZIONE ---
@@ -35,12 +35,12 @@ export default function Watching() {
 
     //§ --- FILTRI SERIE AGGIORNATI CON LA NUOVA LOGICA ---
     // Una serie è ATTIVA se non è archiviata e ha almeno un episodio NON visto nella sessione attuale
-    const activeShows = watchingList.filter(serie => 
+    const activeShows = watchingList.filter(serie =>
         !serie.isArchived && !serie.episodes.every(e => e.sessionWatched)
     ).sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
 
     // Una serie è COMPLETATA se tutti gli episodi della sessione attuale sono stati visti
-    const completedShows = watchingList.filter(serie => 
+    const completedShows = watchingList.filter(serie =>
         !serie.isArchived && serie.episodes.length > 0 && serie.episodes.every(e => e.sessionWatched)
     ).sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
 
@@ -114,7 +114,7 @@ export default function Watching() {
 
                     return (
                         <div key={serie.showId} className="glass-card card p-3 d-flex flex-row position-relative shadow-sm" style={{ minHeight: "11rem", borderRadius: "10px" }}>
-                            
+
                             <div className="dropdown position-absolute top-0 end-0 m-3">
                                 <button className="btn btn-sm btn-light dropdown-toggle border" type="button" data-bs-toggle="dropdown">
                                     ⚙️ Options
@@ -152,7 +152,7 @@ export default function Watching() {
                                 <small className="text-muted mb-3">{percentage}% - {watchedCount} of {totalCount} episodes seen</small>
 
                                 {nextEpisode ? (
-                                    <div className="p-2 bg-light rounded border" style={{ maxWidth: "35rem" }}>
+                                    <div className="glass-card p-2" style={{ maxWidth: "35rem" }}>
                                         <p className="mb-2 text-dark">
                                             {!isSeasonPremiere && !isSeasonFinale && <span className="badge bg-primary me-2">Next</span>}
                                             {isSeasonFinale && <span className="badge bg-danger me-2">Finale 🏁</span>}
@@ -201,10 +201,10 @@ export default function Watching() {
 
             {/* --- SEZIONE SERIE COMPLETATE --- */}
             <div className="mt-5 pt-4 border-top">
-                <button 
-                    className="btn btn-outline-success mb-3" 
-                    type="button" 
-                    data-bs-toggle="collapse" 
+                <button
+                    className="btn btn-outline-success mb-3"
+                    type="button"
+                    data-bs-toggle="collapse"
                     data-bs-target="#collapseCompleted"
                 >
                     ✅ ({completedShows.length})
@@ -219,13 +219,13 @@ export default function Watching() {
                                     {completedShows.map((serie) => (
                                         <div key={serie.showId} className="card shadow-sm border-0" style={{ width: "12rem", borderRadius: "10px", overflow: "hidden" }}>
                                             <div className="position-relative" style={{ height: "18rem" }}>
-                                                <img 
-                                                    src={serie.showImage || defaultPoster} 
-                                                    alt={serie.showName} 
+                                                <img
+                                                    src={serie.showImage || defaultPoster}
+                                                    alt={serie.showName}
                                                     onClick={() => navigate(`/show/${serie.showId}`)}
-                                                    style={{ cursor: "pointer", objectFit: "cover", height: "100%", width: "100%" }} 
+                                                    style={{ cursor: "pointer", objectFit: "cover", height: "100%", width: "100%" }}
                                                 />
-                                                
+
                                                 {/* Badge per il conteggio TOTALE delle visioni */}
                                                 <div className="position-absolute top-0 end-0 m-2">
                                                     <span className="badge bg-info text-dark shadow-sm d-flex align-items-center gap-1" style={{ fontSize: '0.9rem' }}>
