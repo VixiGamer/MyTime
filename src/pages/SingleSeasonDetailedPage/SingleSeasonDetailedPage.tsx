@@ -8,6 +8,8 @@ import Error500 from "../../components/Error500/Error500";
 import { useWatching } from "../../context/WatchingContext";
 import { getRatingColor } from "../../utils/ratingHelper";
 import RatingModal from "../../components/RatingModal/RatingModal";
+import { Vibrant } from "node-vibrant/browser";
+
 
 export default function SingleSeasonDetailedPage() {
     const { showId, seasonId } = useParams();
@@ -19,6 +21,8 @@ export default function SingleSeasonDetailedPage() {
     const [seasonEpisodes, setSeasonEpisodes] = useState<SingleEpisode[]>([]);
     const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
     const [posterImgLoaded, setPosterImgLoaded] = useState(false);
+
+    const [bgGradient, setBgGradient] = useState("");
 
     // Gestione Errori
     const [error404, setError404] = useState(false);
@@ -77,6 +81,40 @@ export default function SingleSeasonDetailedPage() {
             .catch(() => setIsPageLoading(false));
     }, [seasonId, singleSeasonData]);
 
+    const imgOriginalMedium = singleSeasonData?.image?.original || singleSeasonData?.image?.medium;
+
+
+    //* Per estrarre i colori dal poster e usarli come sfondo dinamico della pagina
+    useEffect(() => {
+        if (!imgOriginalMedium) return;
+
+        Vibrant.from(imgOriginalMedium)
+            .getPalette()
+            .then((palette: any) => {
+
+                const colors = Object.values(palette)
+                .filter(Boolean)
+                .map((swatch: any) => swatch._rgb);
+
+            if (colors.length === 0) return;
+
+            const selected = colors.slice(0, 5);
+
+            const colorStrings = selected.map(
+                (c: number[]) => `rgb(${c.join(",")})`
+            );
+            
+            const gradient = `linear-gradient(135deg, ${colorStrings.join(",")})`;
+
+            setBgGradient(gradient);
+            })
+            .catch((err) => {
+            console.error("Errore Vibrant:", err);
+            });
+
+        }, [imgOriginalMedium]
+    );
+
     if (error404) return (
         <div className="container p-5 text-center">
             <div className="glass-card p-5 shadow-lg">
@@ -94,155 +132,155 @@ export default function SingleSeasonDetailedPage() {
         </div>
     );
 
-    const imgOriginalMedium = singleSeasonData?.image?.original || singleSeasonData?.image?.medium;
-
     return (
-        <div className="container py-4">
-            {/* Header / Back Button */}
-            <button className="btn btn-outline-dark mb-4 rounded-pill px-4 shadow-sm" onClick={() => navigate(-1)}>
-                ← Back to Show
-            </button>
+        <div style={{ backgroundImage: bgGradient }} className="min-vh-100 w-100">
+            <div className="container py-4">
+                {/* Header / Back Button */}
+                <button className="glass-card mb-4 px-3 py-2 shadow-sm" onClick={() => navigate(-1)}>
+                    ← Back to Show
+                </button>
 
-            {/* Main Season Card */}
-            <div className="glass-card p-4 mb-5 shadow-lg border-0">
-                <div className="row g-4">
-                    {/* Poster Column */}
-                    <div className="col-md-4 col-lg-3">
-                        <div className="position-relative shadow-lg rounded-4 overflow-hidden">
-                            {!posterImgLoaded && (
-                                <div className="d-flex align-items-center justify-content-center bg-dark text-light" style={{ height: "400px" }}>
-                                    <div className="spinner-border spinner-border-sm" role="status"></div>
-                                </div>
-                            )}
-                            <img
-                                src={imgOriginalMedium || defaultPoster}
-                                alt={singleSeasonData?.name}
-                                className="img-fluid w-100"
-                                onLoad={() => setPosterImgLoaded(true)}
-                                style={{ display: posterImgLoaded ? "block" : "none", objectFit: "cover", minHeight: "400px" }}
-                            />
+                {/* Main Season Card */}
+                <div className="glass-card p-4 mb-5 shadow-lg border-0">
+                    <div className="row g-4">
+                        {/* Poster Column */}
+                        <div className="col-md-4 col-lg-3">
+                            <div className="position-relative shadow-lg rounded-4 overflow-hidden">
+                                {!posterImgLoaded && (
+                                    <div className="d-flex align-items-center justify-content-center bg-dark text-light" style={{ height: "400px" }}>
+                                        <div className="spinner-border spinner-border-sm" role="status"></div>
+                                    </div>
+                                )}
+                                <img
+                                    src={imgOriginalMedium || defaultPoster}
+                                    alt={singleSeasonData?.name}
+                                    className="img-fluid w-100"
+                                    onLoad={() => setPosterImgLoaded(true)}
+                                    style={{ display: posterImgLoaded ? "block" : "none", objectFit: "cover", minHeight: "400px" }}
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Content Column */}
-                    <div className="col-md-8 col-lg-9 d-flex flex-column mb-auto">
-                        <h5 className="fw-bold text-uppercase mb-1" style={{ color: accentColor, letterSpacing: "1.5px" }}>
-                            {seasonEpisodes[0]?._links?.show?.name}
-                        </h5>
-                        <h1 className="display-4 fw-bold mb-3">Season {singleSeasonData?.number}</h1>
+                        {/* Content Column */}
+                        <div className="col-md-8 col-lg-9 d-flex flex-column mb-auto">
+                            <h5 className="fw-bold text-uppercase mb-1" style={{ color: accentColor, letterSpacing: "1.5px" }}>
+                                {seasonEpisodes[0]?._links?.show?.name}
+                            </h5>
+                            <h1 className="display-4 fw-bold mb-3">Season {singleSeasonData?.number}</h1>
 
-                        {/* Action Buttons */}
-                        <div className="d-flex gap-3 mb-4 flex-wrap">
-                            <button
-                                className="btn rounded-pill px-4 py-2 fw-bold shadow-sm transition-all"
-                                style={{
-                                    backgroundColor: userSeasonRating > 0 ? getRatingColor(userSeasonRating) : 'rgba(0,0,0,0.1)',
-                                    color: userSeasonRating === 10 ? '#000' : (userSeasonRating > 0 ? '#fff' : 'var(--text-main)'),
-                                    border: 'none'
-                                }}
-                                onClick={() => setRatingModal({
-                                    isOpen: true,
-                                    targetName: `Season ${singleSeasonData?.number}`,
-                                    currentVal: userSeasonRating
-                                })}
-                            >
-                                {userSeasonRating > 0 ? `Your Rating: ${userSeasonRating}/10 🍿` : "🍿 Rate Season"}
-                            </button>
+                            {/* Action Buttons */}
+                            <div className="d-flex gap-3 mb-4 align-items-center flex-wrap">
+                                <button
+                                    className="btn rounded-pill px-4 py-2 fw-bold shadow-sm transition-all"
+                                    style={{
+                                        backgroundColor: userSeasonRating > 0 ? getRatingColor(userSeasonRating) : 'rgb(108, 117, 125, 0.3)',
+                                        color: userSeasonRating === 10 ? '#000' : (userSeasonRating > 0 ? '#fff' : 'var(--text-main)'),
+                                        border: 'none'
+                                    }}
+                                    onClick={() => setRatingModal({
+                                        isOpen: true,
+                                        targetName: `Season ${singleSeasonData?.number}`,
+                                        currentVal: userSeasonRating
+                                    })}
+                                >
+                                    {userSeasonRating > 0 ? `Your Rating: ${userSeasonRating}/10 🍿` : "🍿 Rate Season"}
+                                </button>
 
-                            <span className="badge rounded-pill bg-dark d-flex align-items-center px-3">
-                                {singleSeasonData?.episodeOrder} Episodes
-                            </span>
-
-                            {totalSeasonViews > 0 && (
-                                <span className="badge rounded-pill bg-dark d-flex align-items-center px-3">
-                                    Total Views: {totalSeasonViews}
+                                <span className="badge rounded-pill gray-glass-card p-2 shadow-sm">
+                                    {singleSeasonData?.episodeOrder} Episodes
                                 </span>
-                            )}
-                        </div>
 
-                        {/* Info Grid */}
-                        <div className="row row-cols-2 row-cols-lg-5 g-3 mb-4">
-                            <div className="col">
-                                <small className="text-muted d-block">Premiere</small>
-                                <strong>{singleSeasonData?.premiereDate || "N/A"}</strong>
+                                {totalSeasonViews > 0 && (
+                                    <span className="badge rounded-pill gray-glass-card p-2 shadow-sm">
+                                        Total Views: {totalSeasonViews}
+                                    </span>
+                                )}
                             </div>
-                            <div className="col">
-                                <small className="text-muted d-block">End</small>
-                                <strong>{singleSeasonData?.endDate || "N/A"}</strong>
-                            </div>
-                            <div className="col">
-                                <small className="text-muted d-block">Network</small>
-                                <strong>{singleSeasonData?.network?.name || singleSeasonData?.webChannel?.name || "N/A"}</strong>
-                            </div>
-                            <div className="col">
-                                <small className="text-muted d-block">Country</small>
-                                <strong>{singleSeasonData?.network?.country?.name || "N/A"}</strong>
-                            </div>
-                            <div className="col">
-                                <small className="text-muted d-block">Season ID</small>
-                                <strong>#{singleSeasonData?.id}</strong>
-                            </div>
-                        </div>
 
-                        <h5 className="fw-bold">Summary</h5>
-                        <p className="opacity-75 lead" style={{ fontSize: "1rem" }}>
-                            {singleSeasonData?.summary
-                                ? singleSeasonData.summary.replace(/<[^>]+>/g, '')
-                                : "No summary available for this season."}
-                        </p>
+                            {/* Info Grid */}
+                            <div className="row row-cols-2 row-cols-lg-5 g-3 mb-4">
+                                <div className="col">
+                                    <small className="text-muted d-block">Premiere</small>
+                                    <strong>{singleSeasonData?.premiereDate || "N/A"}</strong>
+                                </div>
+                                <div className="col">
+                                    <small className="text-muted d-block">End</small>
+                                    <strong>{singleSeasonData?.endDate || "N/A"}</strong>
+                                </div>
+                                <div className="col">
+                                    <small className="text-muted d-block">Network</small>
+                                    <strong>{singleSeasonData?.network?.name || singleSeasonData?.webChannel?.name || "N/A"}</strong>
+                                </div>
+                                <div className="col">
+                                    <small className="text-muted d-block">Country</small>
+                                    <strong>{singleSeasonData?.network?.country?.name || "N/A"}</strong>
+                                </div>
+                                <div className="col">
+                                    <small className="text-muted d-block">Season ID</small>
+                                    <strong>#{singleSeasonData?.id}</strong>
+                                </div>
+                            </div>
+
+                            <h5 className="fw-bold">Summary</h5>
+                            <p className="opacity-75 lead" style={{ fontSize: "1rem" }}>
+                                {singleSeasonData?.summary
+                                    ? singleSeasonData.summary.replace(/<[^>]+>/g, '')
+                                    : "No summary available for this season."}
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Episode List Section */}
-            <div className="mt-5">
-                <h3 className="fw-bold mb-4 px-2">Episodes List</h3>
-                {/* La riga con g-3 definisce lo spazio orizzontale e verticale */}
-                <div className="row g-3">
-                    {seasonEpisodes.map((ep) => (
-                        /* 1. La colonna ora gestisce solo lo spazio e la larghezza */
-                        <div key={ep.id} className="col-md-6 col-sm-12 ">
+                {/* Episode List Section */}
+                <div className="mt-5">
+                    <h3 className="fw-bold mb-4 px-2">Episodes List</h3>
+                    {/* La riga con g-3 definisce lo spazio orizzontale e verticale */}
+                    <div className="row g-3">
+                        {seasonEpisodes.map((ep) => (
+                            /* 1. La colonna ora gestisce solo lo spazio e la larghezza */
+                            <div key={ep.id} className="col-md-6 col-sm-12 ">
 
-                            {/* 2. Ho SPOSTATO qui il tuo stile senza cambiare una virgola */}
-                            <div
-                                className="glass-card p-3 d-flex align-items-center justify-content-between transition-all shadow-sm"
-                                style={{
-                                    borderRadius: "15px",
-                                    cursor: "pointer",
-                                    backgroundColor: "var(--bg-glass)",
-                                    backdropFilter: "blur(12px)",
-                                    borderBottom: "1px solid var(--border-glass)"
-                                }}
-                                onClick={() => navigate(`/show/${showId}/episode/${ep.id}`)}
-                            >
-                                <div className="d-flex align-items-center gap-3">
-                                    <span className="fw-bold fs-5" style={{ color: accentColor }}>#{ep.number}</span>
-                                    <div>
-                                        <h6 className="mb-0 fw-bold">{ep.name}</h6>
-                                        <small className="text-muted">{ep.airdate}</small>
+                                {/* 2. Ho SPOSTATO qui il tuo stile senza cambiare una virgola */}
+                                <div
+                                    className="glass-card p-3 d-flex align-items-center justify-content-between transition-all shadow-sm"
+                                    style={{
+                                        borderRadius: "15px",
+                                        cursor: "pointer",
+                                        backgroundColor: "var(--bg-glass)",
+                                        backdropFilter: "blur(12px)",
+                                        borderBottom: "1px solid var(--border-glass)"
+                                    }}
+                                    onClick={() => navigate(`/show/${showId}/episode/${ep.id}`)}
+                                >
+                                    <div className="d-flex align-items-center gap-3">
+                                        <span className="fw-bold fs-5" style={{ color: accentColor }}>#{ep.number}</span>
+                                        <div>
+                                            <h6 className="mb-0 fw-bold">{ep.name}</h6>
+                                            <small className="text-muted">{ep.airdate}</small>
+                                        </div>
+                                    </div>
+                                    <div className="d-none d-md-block text-muted">
+                                        {ep.runtime} min
                                     </div>
                                 </div>
-                                <div className="d-none d-md-block text-muted">
-                                    {ep.runtime} min
-                                </div>
+
                             </div>
-
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
-            </div>
 
-            {/* Modal */}
-            <RatingModal
-                isOpen={ratingModal.isOpen}
-                targetName={ratingModal.targetName}
-                initialVal={ratingModal.currentVal}
-                onClose={() => setRatingModal({ ...ratingModal, isOpen: false })}
-                onSubmit={(voto) => {
-                    rateSeason(Number(showId), singleSeasonData!.number, voto);
-                    setRatingModal({ ...ratingModal, isOpen: false });
-                }}
-            />
+                {/* Modal */}
+                <RatingModal
+                    isOpen={ratingModal.isOpen}
+                    targetName={ratingModal.targetName}
+                    initialVal={ratingModal.currentVal}
+                    onClose={() => setRatingModal({ ...ratingModal, isOpen: false })}
+                    onSubmit={(voto) => {
+                        rateSeason(Number(showId), singleSeasonData!.number, voto);
+                        setRatingModal({ ...ratingModal, isOpen: false });
+                    }}
+                />
+            </div>
         </div>
     );
 }

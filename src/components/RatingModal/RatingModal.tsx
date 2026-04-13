@@ -26,7 +26,7 @@ export default function RatingModal({ isOpen, targetName, initialVal = 0, onClos
             zIndex: 1060 
         }}>
             <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '20px' }}>
+                <div className="modal-content glass-card border-0 shadow-lg" style={{ borderRadius: '20px' }}>
                     
                     <div className="modal-header border-0 pb-0 pe-4 pt-4">
                         <div className="w-100 text-center">
@@ -46,10 +46,15 @@ export default function RatingModal({ isOpen, targetName, initialVal = 0, onClos
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
                                 <button 
                                     key={num} 
-                                    className={`btn rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center transition-all ${
+                                    className={`rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center transition-all ${
                                         Math.floor(rating) === num 
-                                        ? 'btn-dark scale-110 fw-bold' 
-                                        : 'btn-outline-light text-dark border-1 shadow-none'
+                                            ? (rating < 3 ? 'pink-glass-card' : 
+                                               rating < 5 ? 'red-glass-card' : 
+                                               rating < 7 ? 'yellow-glass-card' : 
+                                               rating < 8 ? 'lightgreen-glass-card' : 
+                                               rating < 10 ? 'green-glass-card' : 
+                                               'lightblue-glass-card') + ' scale-110 fw-bold'
+                                            : 'lightgray-glass-card shadow-none'
                                     }`}
                                     style={{ width: "38px", height: "38px", fontSize: "0.9rem" }}
                                     onClick={() => setRating(num)}
@@ -62,7 +67,7 @@ export default function RatingModal({ isOpen, targetName, initialVal = 0, onClos
                         <div className="d-flex align-items-center gap-2">
                             {/* Pulsante per diminuire di 0.1 */}
                             <button 
-                                className="btn btn-sm btn-outline-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                                className="lightgray-glass-card rounded-circle shadow-sm d-flex align-items-center justify-content-center"
                                 style={{ width: "32px", height: "32px", flexShrink: 0 }}
                                 onClick={() => setRating(prev => Math.max(0, parseFloat((prev - 0.1).toFixed(1))))}
                             >
@@ -87,7 +92,7 @@ export default function RatingModal({ isOpen, targetName, initialVal = 0, onClos
 
                             {/* Pulsante per aumentare di 0.1 */}
                             <button 
-                                className="btn btn-sm btn-outline-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                                className="lightgray-glass-card rounded-circle shadow-sm d-flex align-items-center justify-content-center"
                                 style={{ width: "32px", height: "32px", flexShrink: 0 }}
                                 onClick={() => setRating(prev => Math.min(10, parseFloat((prev + 0.1).toFixed(1))))}
                             >
@@ -99,13 +104,13 @@ export default function RatingModal({ isOpen, targetName, initialVal = 0, onClos
                     <div className="modal-footer border-0 p-4 pt-0">
                         <div className="row w-100 g-2">
                             <div className="col-6">
-                                <button className="btn btn-light w-100 py-2 fw-semibold text-muted border border-muted" onClick={onClose}>Cancel</button>
+                                <button className="lightgray-button-glass w-100 py-2 fw-semibold" onClick={onClose}>Cancel</button>
                             </div>
                             <div className="col-6">
-                                <button className="btn bg-danger-subtle border-danger-subtle text-danger w-100 py-2 fw-bold shadow-sm" onClick={() => onSubmit(null)}>Remove Rating</button>
+                                <button className="red-button-glass w-100 py-2 fw-bold shadow-sm" onClick={() => onSubmit(null)}>Remove Rating</button>
                             </div>
                             <div className="col-12">
-                                <button className="btn bg-success-subtle border-success-subtle border-opacity-0 text-success w-100 py-2 fw-bold shadow-sm" onClick={() => onSubmit(rating)}>Save Rating</button>
+                                <button className="lightgreen-button-glass w-100 py-2 fw-bold shadow-sm" onClick={() => onSubmit(rating)}>Save Rating</button>
                             </div>
                         </div>
                     </div>

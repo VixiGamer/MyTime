@@ -171,33 +171,34 @@ export default function SingleShowPage() {
 
     //* Per estrarre i colori dal poster e usarli come sfondo dinamico della pagina
     useEffect(() => {
-    if (!imgOriginalMedium) return;
+        if (!imgOriginalMedium) return;
 
-    Vibrant.from(imgOriginalMedium)
-        .getPalette()
-        .then((palette: any) => {
+        Vibrant.from(imgOriginalMedium)
+            .getPalette()
+            .then((palette: any) => {
 
-            const colors = Object.values(palette)
-            .filter(Boolean)
-            .map((swatch: any) => swatch._rgb);
+                const colors = Object.values(palette)
+                .filter(Boolean)
+                .map((swatch: any) => swatch._rgb);
 
-        if (colors.length === 0) return;
+            if (colors.length === 0) return;
 
-        const selected = colors.slice(0, 5);
+            const selected = colors.slice(0, 5);
 
-        const colorStrings = selected.map(
-            (c: number[]) => `rgb(${c.join(",")})`
-        );
-        
-        const gradient = `linear-gradient(135deg, ${colorStrings.join(",")})`;
+            const colorStrings = selected.map(
+                (c: number[]) => `rgb(${c.join(",")})`
+            );
+            
+            const gradient = `linear-gradient(135deg, ${colorStrings.join(",")})`;
 
-        setBgGradient(gradient);
-        })
-        .catch((err) => {
-        console.error("Errore Vibrant:", err);
-        });
+            setBgGradient(gradient);
+            })
+            .catch((err) => {
+            console.error("Errore Vibrant:", err);
+            });
 
-    }, [imgOriginalMedium]);
+        }, [imgOriginalMedium]
+    );
 
 
     const navigate = useNavigate()
@@ -302,12 +303,10 @@ export default function SingleShowPage() {
     return (
         <>
             {/* Background sfocato */}
-            <div style={{
-                backgroundImage: bgGradient,
-            }}>
+            <div style={{ backgroundImage: bgGradient }}>
 
                 <div className="p-4 container position-relative">
-                    <button className="btn btn-outline-dark mb-4 rounded-pill px-4 shadow-sm" onClick={() => navigate(-1)}>
+                    <button className="glass-card mb-4 px-3 py-2 shadow-sm" onClick={() => navigate(-1)}>
                         ← Back
                     </button>
 
@@ -415,10 +414,10 @@ export default function SingleShowPage() {
 
                                 <div className="d-flex gap-3 mb-4 flex-wrap">
                                     {!isBeingWatched ? (
-                                        <button className="blue-button-glass" onClick={handleStartWatching}>Start Watching</button>
+                                        <button className="lightblue-button-glass" onClick={handleStartWatching}>Start Watching</button>
                                     ) : (
                                         <div className="dropdown">
-                                            <button className="blue-button-glass dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            <button className="lightblue-button-glass dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                                 {isBeingWatched.isArchived ? "Archived" : "Currently Watching"}
                                             </button>
                                             <ul className="dropdown-menu glass-card">
@@ -561,20 +560,6 @@ export default function SingleShowPage() {
                                         </div>
                                     )}
 
-                                    {/* Info sulla stagione */}
-                                    {/* <button
-                                        className="blue-button-glass btn-sm"
-                                        disabled={seasonsDetails.length === 0} // Disabilita se i dati non sono pronti
-                                        onClick={() => {
-                                            const season = seasonsDetails.find(s => s.number === selectedSeason);
-                                            if (season) {
-                                                navigate(`/show/${singleShowData?.id}/season/${season.id}`);
-                                            }
-                                        }}
-                                    >
-                                        S{selectedSeason} info
-                                    </button> */}
-
                                     {/* Solo se stiamo guardando la serie */}
                                     {isBeingWatched && (
                                         <div className="dropdown">
@@ -646,25 +631,36 @@ export default function SingleShowPage() {
 
                                                     {/* Badge Unificato Visioni */}
                                                     {totalViews > 0 && (
-                                                        <span className="badge rounded-pill bg-success-subtle text-success border border-success-subtle" style={{ fontSize: '0.7rem' }}>
+                                                        <span className="badge rounded-pill green-glass-card" style={{ fontSize: '0.7rem' }}>
                                                             ✓ Watched {totalViews > 1 ? `${totalViews} times` : ''}
                                                         </span>
                                                     )}
+
+                                                    {/* Rating del episodio */}
+                                                    {userRating ? (
+                                                        <small className={`badge rounded-pill ${userRating
+                                                            ? (userRating < 3 ? 'pink-glass-card' : 
+                                                            userRating < 5 ? 'red-glass-card' : 
+                                                            userRating < 7 ? 'yellow-glass-card' : 
+                                                            userRating < 8 ? 'lightgreen-glass-card' : 
+                                                            userRating < 10 ? 'green-glass-card' : 
+                                                            'lightblue-glass-card')
+                                                            : 'lightgray-glass-card shadow-none'}`}>
+                                                            Rating: {userRating}/10 🍿
+                                                        </small>
+                                                    ) : null}
+
                                                 </div>
                                                 <p className="mb-0 text-truncate" style={{ maxWidth: "250px" }}>{episode.name}</p>
-                                                {userRating ? (
-                                                    <small className="fw-bold" style={{ color: getRatingColor(userRating) }}>
-                                                        Rating: {userRating}/10
-                                                    </small>
-                                                ) : null}
+                                                <p className="mb-0 text-truncate" style={{ maxWidth: "250px", color: "#6c757d" }}>{episode.airdate}</p>
                                             </div>
 
                                             {isBeingWatched && (
                                                 <div className="dropdown">
-                                                    <button className={`btn btn-sm rounded-circle ${watchedStatus ? 'btn-success' : 'btn-outline-secondary'}`} type="button" data-bs-toggle="dropdown" style={{ width: "32px", height: "32px", padding: 0 }}>
+                                                    <button className={`rounded-circle ${watchedStatus ? 'lightgreen-glass-card' : 'gray-glass-card'}`} type="button" data-bs-toggle="dropdown" style={{ width: "32px", height: "32px", padding: 0 }}>
                                                         {watchedStatus ? '✓' : '+'}
                                                     </button>
-                                                    <ul className="dropdown-menu dropdown-menu-end shadow border-0" style={{ borderRadius: "12px" }}>
+                                                    <ul className="dropdown-menu dropdown-menu-end glass-card shadow" style={{ borderRadius: "12px" }}>
                                                         <li>
                                                             <button className="dropdown-item py-2" onClick={() => handleToggleEpisode(episode)}>
                                                                 {watchedStatus ? 'Mark as unwatched' : 'Mark as watched'}
@@ -672,7 +668,7 @@ export default function SingleShowPage() {
                                                         </li>
                                                         <li>
                                                             <button className="dropdown-item py-2" onClick={() => rewatchEpisode(Number(showId), episode.id)}>
-                                                                🔄 Rewatch Episode
+                                                                Rewatch Episode
                                                             </button>
                                                         </li>
                                                         {watchedStatus && (

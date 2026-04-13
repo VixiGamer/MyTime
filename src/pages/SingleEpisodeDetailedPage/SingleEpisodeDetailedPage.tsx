@@ -7,10 +7,13 @@ import Error500 from "../../components/Error500/Error500";
 import { useWatching } from "../../context/WatchingContext";
 import { getRatingColor } from "../../utils/ratingHelper";
 import RatingModal from "../../components/RatingModal/RatingModal";
+import { Vibrant } from "node-vibrant/browser";
+
 
 export default function SingleEpisodeDetailedPage() {
     const { showId, episodeId } = useParams();
     const navigate = useNavigate();
+    const [bgGradient, setBgGradient] = useState("");
 
     // --- State ---
     const [singleEpisodeData, setSingleEpisodeData] = useState<SingleEpisode | null>(null);
@@ -70,6 +73,40 @@ export default function SingleEpisodeDetailedPage() {
             });
     }, [showId, episodeId]);
 
+    const imgOriginalMedium = singleEpisodeData?.image?.original || singleEpisodeData?.image?.medium;
+
+
+    //* Per estrarre i colori dal poster e usarli come sfondo dinamico della pagina
+    useEffect(() => {
+        if (!imgOriginalMedium) return;
+
+        Vibrant.from(imgOriginalMedium)
+            .getPalette()
+            .then((palette: any) => {
+
+                const colors = Object.values(palette)
+                .filter(Boolean)
+                .map((swatch: any) => swatch._rgb);
+
+            if (colors.length === 0) return;
+
+            const selected = colors.slice(0, 5);
+
+            const colorStrings = selected.map(
+                (c: number[]) => `rgb(${c.join(",")})`
+            );
+            
+            const gradient = `linear-gradient(135deg, ${colorStrings.join(",")})`;
+
+            setBgGradient(gradient);
+            })
+            .catch((err) => {
+            console.error("Errore Vibrant:", err);
+            });
+
+        }, [imgOriginalMedium]
+    );
+
     // --- Render Logic ---
     if (error404) return (
         <div className="p-4 container text-center">
@@ -89,136 +126,136 @@ export default function SingleEpisodeDetailedPage() {
         </div>
     );
 
-    const imgOriginalMedium = singleEpisodeData?.image?.original || singleEpisodeData?.image?.medium;
-
     return (
-        <div className="container py-4">
-            <button className="btn btn-outline-dark mb-4 rounded-pill px-4" onClick={() => navigate(-1)}>
-                ← Back
-            </button>
+        <div style={{ backgroundImage: bgGradient }} className="min-vh-100 w-100">
+            <div className="container py-4">
+                <button className="glass-card mb-4 px-3 py-2 shadow-sm" onClick={() => navigate(-1)}>
+                    ← Back
+                </button>
 
-            {singleEpisodeData && (
-                <div className="glass-card p-4 shadow border-0" style={{ borderRadius: "25px" }}>
-                    <header className="mb-4">
-                        <h5 className="text-muted text-uppercase fw-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>
-                            {singleEpisodeData._links.show.name} • Season {singleEpisodeData.season}
-                        </h5>
-                        <h1 className="display-5 fw-bold mb-2">
-                            {singleEpisodeData.number}. {singleEpisodeData.name || "Untitled Episode"}
-                        </h1>
-                    </header>
+                {singleEpisodeData && (
+                    <div className="glass-card p-4 shadow border-0" style={{ borderRadius: "25px" }}>
+                        <header className="mb-4">
+                            <h5 className="text-muted text-uppercase fw-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>
+                                {singleEpisodeData._links.show.name} • Season {singleEpisodeData.season}
+                            </h5>
+                            <h1 className="display-5 fw-bold mb-2">
+                                {singleEpisodeData.number}. {singleEpisodeData.name || "Untitled Episode"}
+                            </h1>
+                        </header>
 
-                    <div className="row g-4">
-                        {/* Immagine Episodio */}
-                        <div className="col-lg-6">
-                            <div className="position-relative overflow-hidden rounded-4 shadow-sm">
-                                {!episodeImgLoaded && (
-                                    <div className="d-flex align-items-center justify-content-center bg-light" style={{ height: "300px" }}>
-                                        <div className="spinner-border text-secondary opacity-25" role="status"></div>
-                                    </div>
-                                )}
-                                <img
-                                    src={imgOriginalMedium || defaultEpisodePoster}
-                                    alt={singleEpisodeData.name}
-                                    className="img-fluid w-100"
-                                    onLoad={() => setEpisodeImgLoaded(true)}
-                                    style={{ display: episodeImgLoaded ? "block" : "none", objectFit: "cover" }}
-                                />
+                        <div className="row g-4">
+                            {/* Immagine Episodio */}
+                            <div className="col-lg-6">
+                                <div className="position-relative overflow-hidden rounded-4 shadow-sm">
+                                    {!episodeImgLoaded && (
+                                        <div className="d-flex align-items-center justify-content-center bg-light" style={{ height: "300px" }}>
+                                            <div className="spinner-border text-secondary opacity-25" role="status"></div>
+                                        </div>
+                                    )}
+                                    <img
+                                        src={imgOriginalMedium || defaultEpisodePoster}
+                                        alt={singleEpisodeData.name}
+                                        className="img-fluid w-100"
+                                        onLoad={() => setEpisodeImgLoaded(true)}
+                                        style={{ display: episodeImgLoaded ? "block" : "none", objectFit: "cover" }}
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Info e Rating */}
-                        <div className="col-lg-6">
-                            <div className="d-flex flex-column h-100">
-                                <div className="mb-3">
-                                    <h5 className="fw-bold">History & Rating</h5>
-                                </div>
-                                
-                                <div className="mb-4 d-flex align-items-center gap-2 flex-wrap">
-                                    {/* Pulsante Rating */}
-                                    <button 
-                                        className="btn rounded-pill px-4 py-2 fw-bold shadow-sm transition-all"
-                                        style={{ 
-                                            backgroundColor: userEpisodeRating > 0 ? getRatingColor(userEpisodeRating) : 'rgba(0,0,0,0.1)',
-                                            color: userEpisodeRating === 10 ? '#000' : (userEpisodeRating > 0 ? '#fff' : 'inherit'),
-                                            border: 'none'
-                                        }}
-                                        onClick={() => setIsRatingModalOpen(true)}
-                                    >
-                                        {userEpisodeRating > 0 ? `Rating: ${userEpisodeRating}/10 🍿` : "🍿 Rate Episode"}
-                                    </button>
-
-                                    {/* Badge Conteggio Totale Storico */}
-                                    {totalViews > 0 && (
-                                        <span className="badge rounded-pill bg-dark text-white px-3 py-2 border border-secondary shadow-sm">
-                                            Total Views: {totalViews}
-                                        </span>
-                                    )}
-
-                                    {/* Pulsante per aggiungere una visione allo storico */}
-                                    {isBeingWatched && (
+                            {/* Info e Rating */}
+                            <div className="col-lg-6">
+                                <div className="d-flex flex-column h-100">
+                                    <div className="mb-3">
+                                        <h5 className="fw-bold">History & Rating</h5>
+                                    </div>
+                                    
+                                    <div className="mb-4 d-flex align-items-center gap-2 flex-wrap">
+                                        {/* Pulsante Rating */}
                                         <button 
-                                            className="btn btn-outline-info rounded-pill px-3 fw-bold"
-                                            onClick={() => {
-                                                if(window.confirm("Increase your total watch count for this episode?")) {
-                                                    rewatchEpisode(Number(showId), Number(episodeId));
-                                                }
+                                            className="btn rounded-pill px-4 py-2 fw-bold shadow-sm transition-all"
+                                            style={{ 
+                                                backgroundColor: userEpisodeRating > 0 ? getRatingColor(userEpisodeRating) : 'rgb(108, 117, 125, 0.3)',
+                                                color: userEpisodeRating === 10 ? '#000' : (userEpisodeRating > 0 ? '#fff' : 'inherit'),
+                                                border: 'none'
                                             }}
+                                            onClick={() => setIsRatingModalOpen(true)}
                                         >
-                                            🔄 Watch Again
+                                            {userEpisodeRating > 0 ? `Rating: ${userEpisodeRating}/10 🍿` : "🍿 Rate Episode"}
                                         </button>
-                                    )}
-                                </div>
 
-                                {/* Stato Sessione Attuale */}
-                                <div className="mb-4">
-                                    {isCurrentlyWatched ? (
-                                        <span className="text-success fw-bold small text-uppercase d-flex align-items-center gap-2">
-                                            <span className="rounded-circle bg-success" style={{width: '8px', height: '8px'}}></span>
-                                            Watched in current session
-                                        </span>
-                                    ) : (
-                                        <span className="text-muted fw-bold small text-uppercase d-flex align-items-center gap-2">
-                                            <span className="rounded-circle bg-secondary" style={{width: '8px', height: '8px'}}></span>
-                                            Not watched in current session
-                                        </span>
-                                    )}
-                                </div>
+                                        {/* Badge Conteggio Totale Storico */}
+                                        {totalViews > 0 && (
+                                            <span className="badge rounded-pill gray-glass-card p-2 shadow-sm">
+                                                Total Views: {totalViews}
+                                            </span>
+                                        )}
 
-                                <div className="row row-cols-2 g-3 mb-4">
-                                    <div className="col"><small className="text-muted d-block">Airdate</small> <strong>{singleEpisodeData.airdate || "N/A"}</strong></div>
-                                    <div className="col"><small className="text-muted d-block">Runtime</small> <strong>{singleEpisodeData.runtime} min</strong></div>
-                                    <div className="col"><small className="text-muted d-block">TVMaze Rating</small> <strong>⭐ {singleEpisodeData.rating.average || "N/A"}</strong></div>
-                                    <div className="col"><small className="text-muted d-block">Format</small> <strong>S{singleEpisodeData.season} E{singleEpisodeData.number}</strong></div>
-                                </div>
+                                        {/* Pulsante per aggiungere una visione allo storico */}
+                                        {isBeingWatched && (
+                                            <button 
+                                                className="badge rounded-pill lightblue-glass-card p-2 shadow-sm"
+                                                onClick={() => {
+                                                    if(window.confirm("Increase your total watch count for this episode?")) {
+                                                        rewatchEpisode(Number(showId), Number(episodeId));
+                                                    }
+                                                }}
+                                            >
+                                                Watch count + 1
+                                            </button>
+                                        )}
+                                    </div>
 
-                                <div className="mt-auto">
-                                    <h5 className="fw-bold">Summary</h5>
-                                    <p className="text-secondary" style={{ lineHeight: '1.6' }}>
-                                        {singleEpisodeData.summary 
-                                            ? singleEpisodeData.summary.replace(/<[^>]+>/g, '') 
-                                            : "No summary available for this episode."}
-                                    </p>
+                                    {/* Stato Sessione Attuale */}
+                                    <div className="mb-4">
+                                        {isCurrentlyWatched ? (
+                                            <span className="text-success fw-bold small text-uppercase d-flex align-items-center gap-2">
+                                                <span className="rounded-circle bg-success" style={{width: '8px', height: '8px'}}></span>
+                                                Watched in current session
+                                            </span>
+                                        ) : (
+                                            <span className="text-muted fw-bold small text-uppercase d-flex align-items-center gap-2">
+                                                <span className="rounded-circle bg-secondary" style={{width: '8px', height: '8px'}}></span>
+                                                Not watched in current session
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div className="row row-cols-2 g-3 mb-4">
+                                        <div className="col"><small className="text-muted d-block">Airdate</small> <strong>{singleEpisodeData.airdate || "N/A"}</strong></div>
+                                        <div className="col"><small className="text-muted d-block">Runtime</small> <strong>{singleEpisodeData.runtime} min</strong></div>
+                                        <div className="col"><small className="text-muted d-block">TVMaze Rating</small> <strong>⭐ {singleEpisodeData.rating.average || "N/A"}</strong></div>
+                                        <div className="col"><small className="text-muted d-block">Format</small> <strong>S{singleEpisodeData.season} E{singleEpisodeData.number}</strong></div>
+                                    </div>
+
+                                    <div className="mt-auto">
+                                        <h5 className="fw-bold">Summary</h5>
+                                        <p className="text-secondary" style={{ lineHeight: '1.6' }}>
+                                            {singleEpisodeData.summary 
+                                                ? singleEpisodeData.summary.replace(/<[^>]+>/g, '') 
+                                                : "No summary available for this episode."}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Modale di Voto */}
-            {singleEpisodeData && (
-                <RatingModal
-                    isOpen={isRatingModalOpen}
-                    targetName={`${singleEpisodeData.name} (S${singleEpisodeData.season}E${singleEpisodeData.number})`}
-                    initialVal={userEpisodeRating}
-                    onClose={() => setIsRatingModalOpen(false)}
-                    onSubmit={(newRating) => {
-                        rateEpisode(Number(showId), Number(episodeId), newRating);
-                        setIsRatingModalOpen(false);
-                    }}
-                />
-            )}
+                {/* Modale di Voto */}
+                {singleEpisodeData && (
+                    <RatingModal
+                        isOpen={isRatingModalOpen}
+                        targetName={`${singleEpisodeData.name} (S${singleEpisodeData.season}E${singleEpisodeData.number})`}
+                        initialVal={userEpisodeRating}
+                        onClose={() => setIsRatingModalOpen(false)}
+                        onSubmit={(newRating) => {
+                            rateEpisode(Number(showId), Number(episodeId), newRating);
+                            setIsRatingModalOpen(false);
+                        }}
+                    />
+                )}
+            </div>
         </div>
     );
 }

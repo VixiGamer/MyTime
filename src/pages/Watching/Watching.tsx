@@ -116,15 +116,17 @@ export default function Watching() {
                         <div key={serie.showId} className="glass-card card p-3 d-flex flex-row position-relative shadow-sm" style={{ minHeight: "11rem", borderRadius: "10px" }}>
 
                             <div className="dropdown position-absolute top-0 end-0 m-3">
-                                <button className="btn btn-sm btn-light dropdown-toggle border" type="button" data-bs-toggle="dropdown">
-                                    ⚙️ Options
+                                <button className="gray-button-glass dropdown-toggle border" type="button" data-bs-toggle="dropdown">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                                    </svg>
                                 </button>
-                                <ul className="dropdown-menu dropdown-menu-end shadow">
+                                <ul className="dropdown-menu glass-card dropdown-menu-end shadow">
                                     <li><button className="dropdown-item" onClick={() => navigate(`/show/${serie.showId}`)}>Show Details</button></li>
-                                    <li><button className="dropdown-item text-success" onClick={() => handleMarkShowAsWatched(serie.showId, serie.showName)}>✓ Mark entire show as watched</button></li>
+                                    <li><button className="dropdown-item" onClick={() => handleMarkShowAsWatched(serie.showId, serie.showName)}>Mark entire show as watched</button></li>
                                     <li><hr className="dropdown-divider" /></li>
-                                    <li><button className="dropdown-item" onClick={() => archiveShow(serie.showId)}>📦 Archive (Hide below)</button></li>
-                                    <li><button className="dropdown-item text-danger fw-bold" onClick={() => deleteShowData(serie.showId)}>🗑️ Delete ALL data & history</button></li>
+                                    <li><button className="dropdown-item" onClick={() => archiveShow(serie.showId)}>Archive (Hide below)</button></li>
+                                    <li><button className="dropdown-item text-danger fw-bold" onClick={() => deleteShowData(serie.showId)}>Delete ALL data & history</button></li>
                                 </ul>
                             </div>
 
@@ -153,13 +155,13 @@ export default function Watching() {
 
                                 {nextEpisode ? (
                                     <div className="glass-card p-2" style={{ maxWidth: "35rem" }}>
-                                        <p className="mb-2 text-dark">
-                                            {!isSeasonPremiere && !isSeasonFinale && <span className="badge bg-primary me-2">Next</span>}
-                                            {isSeasonFinale && <span className="badge bg-danger me-2">Finale 🏁</span>}
-                                            {isSeasonPremiere && <span className="badge bg-info me-2">Premier 🍿</span>}
+                                        <p className="mb-2">
+                                            {!isSeasonPremiere && !isSeasonFinale && <span className="badge gray-button-glass me-2">Next</span>}
+                                            {isSeasonFinale && <span className="badge red-button-glass me-2">Finale 🏁</span>}
+                                            {isSeasonPremiere && <span className="badge lightblue-button-glass me-2">Premier 🍿</span>}
                                             <strong>S{nextEpisode.episodeData.season}E{nextEpisode.episodeData.number}</strong> - {nextEpisode.episodeData.name}
                                         </p>
-                                        <button className="btn btn-success btn-sm" onClick={() => handleToggleNextEpisode(serie.showId, nextEpisode.episodeData)}>Mark as watched ✓</button>
+                                        <button className="lightgreen-button-glass" onClick={() => handleToggleNextEpisode(serie.showId, nextEpisode.episodeData)}>Mark as watched ✓</button>
                                     </div>
                                 ) : (
                                     <div className="p-2 bg-success text-white rounded bg-opacity-75" style={{ maxWidth: "35rem" }}>
