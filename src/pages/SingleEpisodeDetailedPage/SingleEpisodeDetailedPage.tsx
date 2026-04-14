@@ -107,6 +107,12 @@ export default function SingleEpisodeDetailedPage() {
         }, [imgOriginalMedium]
     );
 
+    function formatDate(date?: string | null): string {
+        if (!date) return "N/A"
+        const [year, month, day] = date.split("-")
+        return `${day}-${month}-${year}`
+    }
+
     // --- Render Logic ---
     if (error404) return (
         <div className="p-4 container text-center">
@@ -172,17 +178,30 @@ export default function SingleEpisodeDetailedPage() {
                                     
                                     <div className="mb-4 d-flex align-items-center gap-2 flex-wrap">
                                         {/* Pulsante Rating */}
-                                        <button 
-                                            className="btn rounded-pill px-4 py-2 fw-bold shadow-sm transition-all"
-                                            style={{ 
-                                                backgroundColor: userEpisodeRating > 0 ? getRatingColor(userEpisodeRating) : 'rgb(108, 117, 125, 0.3)',
-                                                color: userEpisodeRating === 10 ? '#000' : (userEpisodeRating > 0 ? '#fff' : 'inherit'),
-                                                border: 'none'
-                                            }}
-                                            onClick={() => setIsRatingModalOpen(true)}
-                                        >
-                                            {userEpisodeRating > 0 ? `Rating: ${userEpisodeRating}/10 🍿` : "🍿 Rate Episode"}
-                                        </button>
+                                        {userEpisodeRating ? (
+                                            <button
+                                                className={`${
+                                                    userEpisodeRating < 3 ? 'pink-button-glass' : 
+                                                    userEpisodeRating < 5 ? 'red-button-glass' : 
+                                                    userEpisodeRating < 7 ? 'yellow-button-glass' : 
+                                                    userEpisodeRating < 8 ? 'lightgreen-button-glass' : 
+                                                    userEpisodeRating < 10 ? 'green-button-glass' : 
+                                                    'lightblue-button-glass'
+                                                } fw-bold shadow-sm transition-all px-3 py-2`}
+                                                style={{
+                                                    color: 'var(--text-main)',
+                                                }}
+                                                onClick={() => setIsRatingModalOpen(true)}  
+                                            >
+                                                <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {userEpisodeRating}/10
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="lightgray-button-glass fw-bold shadow-sm transition-all px-3 py-2"
+                                                onClick={() => setIsRatingModalOpen(true)}                                   >
+                                                <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> Rate Show
+                                            </button>
+                                        )}
 
                                         {/* Badge Conteggio Totale Storico */}
                                         {totalViews > 0 && (
@@ -222,9 +241,9 @@ export default function SingleEpisodeDetailedPage() {
                                     </div>
 
                                     <div className="row row-cols-2 g-3 mb-4">
-                                        <div className="col"><small className="text-muted d-block">Airdate</small> <strong>{singleEpisodeData.airdate || "N/A"}</strong></div>
+                                        <div className="col"><small className="text-muted d-block">Airdate</small> <strong>{formatDate(singleEpisodeData.airdate)}</strong></div>
                                         <div className="col"><small className="text-muted d-block">Runtime</small> <strong>{singleEpisodeData.runtime} min</strong></div>
-                                        <div className="col"><small className="text-muted d-block">TVMaze Rating</small> <strong>⭐ {singleEpisodeData.rating.average || "N/A"}</strong></div>
+                                        <div className="col"><small className="text-muted d-block">TVMaze Rating</small> <i className="bi bi-star-fill" style={{color: "#ffc107"}} /><strong> {singleEpisodeData.rating.average || "N/A"}</strong></div>
                                         <div className="col"><small className="text-muted d-block">Format</small> <strong>S{singleEpisodeData.season} E{singleEpisodeData.number}</strong></div>
                                     </div>
 

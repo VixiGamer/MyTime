@@ -117,9 +117,7 @@ export default function Watching() {
 
                             <div className="dropdown position-absolute top-0 end-0 m-3">
                                 <button className="gray-button-glass dropdown-toggle border" type="button" data-bs-toggle="dropdown">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-                                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
-                                    </svg>
+                                    <i className="bi bi-three-dots-vertical"></i>
                                 </button>
                                 <ul className="dropdown-menu glass-card dropdown-menu-end shadow">
                                     <li><button className="dropdown-item" onClick={() => navigate(`/show/${serie.showId}`)}>Show Details</button></li>
@@ -146,7 +144,7 @@ export default function Watching() {
 
                             <div className="flex-grow-1 d-flex flex-column justify-content-center pe-5">
                                 <h4 className="mb-1" style={{ cursor: "pointer" }} onClick={() => navigate(`/show/${serie.showId}`)}>{serie.showName}</h4>
-                                {serie.userRating ? <span className="badge bg-warning text-dark mb-2" style={{ width: "fit-content" }}>Show rating: {serie.userRating}/10</span> : null}
+                                {/* {serie.userRating ? <span className="badge yellow-glass-card rounded-pill mb-2" style={{ width: "fit-content" }}>Show rating: {serie.userRating}/10</span> : null} */}
 
                                 <div className="progress mb-2" style={{ maxWidth: "30rem", height: "10px" }}>
                                     <div className="progress-bar bg-success" style={{ width: `${percentage}%` }}></div>
@@ -181,7 +179,7 @@ export default function Watching() {
                     <div className="card card-body glass-card border-0 shadow-sm">
                         {archivedShows.length > 0 ? (
                             <div>
-                                <h3 className="text-secondary mb-3">📦 Archive</h3>
+                                <h3 className="mb-3">Archive</h3>
                                 <div className="d-flex flex-wrap gap-3">
                                     {archivedShows.map((serie) => (
                                         <div key={serie.showId} className="card shadow-sm" style={{ width: "10rem", opacity: 0.85 }}>
@@ -216,7 +214,7 @@ export default function Watching() {
                     <div className="card card-body glass-card border-0 shadow-sm">
                         {completedShows.length > 0 ? (
                             <div>
-                                <h3 className="mb-4 text-success">✅ Completed shows</h3>
+                                <h3 className="mb-4">Completed shows</h3>
                                 <div className="d-flex flex-wrap gap-3">
                                     {completedShows.map((serie) => (
                                         <div key={serie.showId} className="card shadow-sm" style={{ width: "12rem", borderRadius: "10px", overflow: "hidden" }}>
@@ -251,7 +249,7 @@ export default function Watching() {
                                                         }
                                                     }}
                                                 >
-                                                    Rewatch
+                                                    <i className="bi bi-arrow-clockwise" /> Rewatch
                                                 </button>
                                             </div>
                                         </div>

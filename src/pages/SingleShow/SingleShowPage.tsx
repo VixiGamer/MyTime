@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { formToJSON } from "axios";
 import { useEffect, useState } from "react";
 import type { SingleShowDetails } from "../../Types/SingleShowDetails";
 import { useNavigate, useParams } from "react-router-dom";
@@ -200,6 +200,12 @@ export default function SingleShowPage() {
         }, [imgOriginalMedium]
     );
 
+    function formatDate(date?: string | null): string {
+        if (!date) return "N/A"
+        const [year, month, day] = date.split("-")
+        return `${day}-${month}-${year}`
+    }
+
 
     const navigate = useNavigate()
 
@@ -338,17 +344,31 @@ export default function SingleShowPage() {
                                 </p>
                                 {/* Action Buttons */}
                                 <div className="d-flex gap-3 mb-4 flex-wrap">
-                                    <button
-                                        className="btn rounded-pill px-4 py-2 fw-bold shadow-sm transition-all"
-                                        style={{
-                                            backgroundColor: Number(isBeingWatched?.userRating) > 0 ? getRatingColor(Number(isBeingWatched?.userRating)) : 'rgba(0,0,0,0.1)',
-                                            color: Number(isBeingWatched?.userRating) === 10 ? '#000' : (Number(isBeingWatched?.userRating) > 0 ? '#fff' : 'var(--text-main)'),
-                                            border: 'none'
-                                        }}
-                                        onClick={() => setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: isBeingWatched?.showName || singleShowData?.name || "", currentVal: isBeingWatched?.userRating || 0 })}
-                                    >
-                                        {Number(isBeingWatched?.userRating) > 0 ? `${isBeingWatched?.userRating}/10 🍿` : "🍿 Rate Show"}
-                                    </button>
+                                    {Number(isBeingWatched?.userRating) ? (
+                                        <button
+                                            className={`${
+                                                Number(isBeingWatched?.userRating) < 3 ? 'pink-button-glass' : 
+                                                Number(isBeingWatched?.userRating) < 5 ? 'red-button-glass' : 
+                                                Number(isBeingWatched?.userRating) < 7 ? 'yellow-button-glass' : 
+                                                Number(isBeingWatched?.userRating) < 8 ? 'lightgreen-button-glass' : 
+                                                Number(isBeingWatched?.userRating) < 10 ? 'green-button-glass' : 
+                                                'lightblue-button-glass'
+                                            } fw-bold shadow-sm transition-all px-3 py-2`}
+                                            style={{
+                                                color: 'var(--text-main)',
+                                            }}
+                                            onClick={() => setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: isBeingWatched?.showName || singleShowData?.name || "", currentVal: isBeingWatched?.userRating || 0 })}
+                                        >
+                                            <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {isBeingWatched?.userRating}/10
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="lightgray-button-glass fw-bold shadow-sm transition-all px-3 py-2"
+                                            onClick={() => setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: isBeingWatched?.showName || singleShowData?.name || "", currentVal: isBeingWatched?.userRating || 0 })}
+                                        >
+                                            <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> Rate Show
+                                        </button>
+                                    )}
 
                                     {totalShowWatchedCount > 0 && (
                                         <span className="gray-button-glass d-flex align-items-center px-3">
@@ -361,11 +381,11 @@ export default function SingleShowPage() {
                                 <div className="row row-cols-2 row-cols-lg-5 g-3 mb-4">
                                     <div className="col">
                                         <small className="text-muted d-block">Premiere</small>
-                                        <strong>{singleShowData?.premiered || "N/A"}</strong>
+                                        <strong>{formatDate(singleShowData?.premiered) || "N/A"}</strong>
                                     </div>
                                     <div className="col">
                                         <small className="text-muted d-block">End</small>
-                                        <strong>{singleShowData?.ended || "Still running"}</strong>
+                                        <strong>{formatDate(singleShowData?.ended) === "N/A" ? "Still running" : formatDate(singleShowData?.ended)}</strong>
                                     </div>
                                     <div className="col">
                                         <small className="text-muted d-block">Seasons</small>
@@ -377,7 +397,7 @@ export default function SingleShowPage() {
                                     </div>
                                     <div className="col">
                                         <small className="text-muted d-block">TVMaze Rating</small>
-                                        <strong>{singleShowData?.rating?.average === null ? "N/A" : "⭐️ " + singleShowData?.rating?.average}</strong>
+                                        <i className="bi bi-star-fill" style={{color: "#ffc107"}} /> <strong>{singleShowData?.rating?.average === null ? "N/A" : singleShowData?.rating?.average}</strong>
                                     </div>
                                     <div className="col">
                                         <small className="text-muted d-block">Network</small>
@@ -589,7 +609,7 @@ export default function SingleShowPage() {
                                     {/* Rating della stagione */}
                                     <button type="button" className="pink-button-glass" onClick={() => setRatingModal({ isOpen: true, type: 'season', targetId: selectedSeason, targetName: `Season ${selectedSeason}`, currentVal: seasonProg?.userRating || 0 })}>
                                         {currentSeasonProgress?.userRating ? (
-                                            <><strong>{currentSeasonProgress.userRating}/10</strong></>
+                                            <><i className="bi bi-heart-fill" style={{ color: "#dc3545" }}></i> <strong>{currentSeasonProgress.userRating}/10</strong></>
                                         ) : (
                                             <>Rate Season {selectedSeason}</>
                                         )}
@@ -646,13 +666,13 @@ export default function SingleShowPage() {
                                                             userRating < 10 ? 'green-glass-card' : 
                                                             'lightblue-glass-card')
                                                             : 'lightgray-glass-card shadow-none'}`}>
-                                                            {userRating}/10 🍿
+                                                            <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {userRating}/10
                                                         </small>
                                                     ) : null}
 
                                                 </div>
                                                 <p className="mb-0 text-truncate" style={{ maxWidth: "250px" }}>{episode.name}</p>
-                                                <p className="mb-0 text-truncate" style={{ maxWidth: "250px", color: "#6c757d" }}>{episode.airdate}</p>
+                                                <p className="mb-0 text-truncate" style={{ maxWidth: "250px", color: "#6c757d" }}>{formatDate(episode.airdate)}</p>
                                             </div>
 
                                             {isBeingWatched && (
@@ -690,18 +710,20 @@ export default function SingleShowPage() {
 
                     </div>
 
-                    <div className="glass-card" style={{marginTop: "5rem"}}>
-                        <h2>Cast</h2>
-                        <div className="d-flex flex-row flex-wrap">
+                    <div className="" style={{marginTop: "5rem"}}>
+                        <h2 className="fw-bold mb-4 px-2">Cast</h2>
+                        <div className="glass-card container d-flex flex-row flex-wrap">
                             {cast.map((cast) => {
                                 return (
-                                    <div className="p-2 m-2 border" style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/actor/${cast.person.id}`)}>
+                                    <div className="card border p-0" style={{ textAlign: "center", cursor: "pointer", width: "10rem", borderRadius: "15px" }} onClick={() => navigate(`/actor/${cast.person.id}`)}>
                                         <img
                                             src={cast.person.image?.medium || cast.person.image?.original}
-                                            style={{ height: "50px", borderRadius: "100%" }}
+                                            style={{borderTopLeftRadius: "15px", borderTopRightRadius: "15px"}}
                                         />
-                                        <p>{cast.person.name}</p>
-                                        <p>{cast.character.name}</p>
+                                        <div className="mt-2 px-3 h-100 d-flex flex-column justify-content-center align-content-center">
+                                            <strong>{cast.person.name}</strong>
+                                            <p className="mt-1">{cast.character.name}</p>
+                                        </div>
                                     </div>
                                 )
                             })}

@@ -115,6 +115,12 @@ export default function SingleSeasonDetailedPage() {
         }, [imgOriginalMedium]
     );
 
+    function formatDate(date?: string | null): string {
+        if (!date) return "N/A"
+        const [year, month, day] = date.split("-")
+        return `${day}-${month}-${year}`
+    }
+
     if (error404) return (
         <div className="container p-5 text-center">
             <div className="glass-card p-5 shadow-lg">
@@ -170,21 +176,38 @@ export default function SingleSeasonDetailedPage() {
 
                             {/* Action Buttons */}
                             <div className="d-flex gap-3 mb-4 align-items-center flex-wrap">
-                                <button
-                                    className="btn rounded-pill px-4 py-2 fw-bold shadow-sm transition-all"
-                                    style={{
-                                        backgroundColor: userSeasonRating > 0 ? getRatingColor(userSeasonRating) : 'rgb(108, 117, 125, 0.3)',
-                                        color: userSeasonRating === 10 ? '#000' : (userSeasonRating > 0 ? '#fff' : 'var(--text-main)'),
-                                        border: 'none'
-                                    }}
-                                    onClick={() => setRatingModal({
-                                        isOpen: true,
-                                        targetName: `Season ${singleSeasonData?.number}`,
-                                        currentVal: userSeasonRating
-                                    })}
-                                >
-                                    {userSeasonRating > 0 ? `Your Rating: ${userSeasonRating}/10 🍿` : "🍿 Rate Season"}
-                                </button>
+                                {userSeasonRating ? (
+                                    <button
+                                        className={`${
+                                            userSeasonRating < 3 ? 'pink-button-glass' : 
+                                            userSeasonRating < 5 ? 'red-button-glass' : 
+                                            userSeasonRating < 7 ? 'yellow-button-glass' : 
+                                            userSeasonRating < 8 ? 'lightgreen-button-glass' : 
+                                            userSeasonRating < 10 ? 'green-button-glass' : 
+                                            'lightblue-button-glass'
+                                        } fw-bold shadow-sm transition-all px-3 py-2`}
+                                        style={{
+                                            color: 'var(--text-main)',
+                                        }}
+                                        onClick={() => setRatingModal({
+                                            isOpen: true,
+                                            targetName: `Season ${singleSeasonData?.number}`,
+                                            currentVal: userSeasonRating
+                                        })}   
+                                    >
+                                        <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {userSeasonRating}/10
+                                    </button>
+                                ) : (
+                                    <button
+                                        className="lightgray-button-glass fw-bold shadow-sm transition-all px-3 py-2"
+                                        onClick={() => setRatingModal({
+                                            isOpen: true,
+                                            targetName: `Season ${singleSeasonData?.number}`,
+                                            currentVal: userSeasonRating
+                                        })}                                    >
+                                        <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> Rate Show
+                                    </button>
+                                )}
 
                                 <span className="badge rounded-pill gray-glass-card p-2 shadow-sm">
                                     {singleSeasonData?.episodeOrder} Episodes
@@ -201,11 +224,11 @@ export default function SingleSeasonDetailedPage() {
                             <div className="row row-cols-2 row-cols-lg-5 g-3 mb-4">
                                 <div className="col">
                                     <small className="text-muted d-block">Premiere</small>
-                                    <strong>{singleSeasonData?.premiereDate || "N/A"}</strong>
+                                    <strong>{formatDate(singleSeasonData?.premiereDate) || "N/A"}</strong>
                                 </div>
                                 <div className="col">
                                     <small className="text-muted d-block">End</small>
-                                    <strong>{singleSeasonData?.endDate || "N/A"}</strong>
+                                    <strong>{formatDate(singleSeasonData?.endDate) === "N/A" ? "Still running" : formatDate(singleSeasonData?.endDate)}</strong>
                                 </div>
                                 <div className="col">
                                     <small className="text-muted d-block">Network</small>
@@ -256,7 +279,7 @@ export default function SingleSeasonDetailedPage() {
                                         <span className="fw-bold fs-5" style={{ color: accentColor }}>#{ep.number}</span>
                                         <div>
                                             <h6 className="mb-0 fw-bold">{ep.name}</h6>
-                                            <small className="text-muted">{ep.airdate}</small>
+                                            <small className="text-muted">{formatDate(ep.airdate)}</small>
                                         </div>
                                     </div>
                                     <div className="d-none d-md-block text-muted">

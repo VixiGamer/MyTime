@@ -63,7 +63,7 @@ export default function Navbar() {
                                     lineHeight: "0"
                                 }}
                             >
-                                {theme === "light" ? "🌙" : "☀️"}
+                                {theme === "light" ? <i className="bi bi-moon-fill" /> : <i className="bi bi-brightness-high-fill" />}
                             </button>
                         </li>
                     </ul>

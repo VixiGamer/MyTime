@@ -84,6 +84,12 @@ export default function ActorDetailedPage() {
 
     }, [actorData]); // Si attiva appena actorData è pronto
 
+    function formatDate(date?: string | null): string {
+        if (!date) return "N/A"
+        const [year, month, day] = date.split("-")
+        return `${day}-${month}-${year}`
+    }
+
 
     //  Se l'Id è sbagliato (404)
     if (error404) {
@@ -155,9 +161,9 @@ export default function ActorDetailedPage() {
                         />
 
                         <div>
-                            <p><strong>Birthday: </strong>{actorData?.birthday || "Unavalible"}</p>
+                            <p><strong>Birthday: </strong>{formatDate(actorData?.birthday) || "Unavalible"}</p>
                             {actorData?.deathday !== null ? (
-                                <p><strong>Died: </strong>{actorData?.deathday || "Unavalible"}</p>
+                                <p><strong>Died: </strong>{formatDate(actorData?.deathday) || "Unavalible"}</p>
                             ) : (null)}
                             <p><strong>Gender: </strong>{actorData?.gender || "Unavalible"}</p>
                             <p><strong>Country: </strong>{actorData?.country?.name || "Unavalible"}</p>
