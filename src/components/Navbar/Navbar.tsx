@@ -18,13 +18,7 @@ export default function Navbar() {
     const isActive = (path: string) => location.pathname === path;
 
     return (
-        <nav className="navbar navbar-expand-lg sticky-top shadow-sm py-2 px-3 transition-all" 
-             style={{ 
-                 backgroundColor: "var(--bg-glass)", // Usa la variabile globale
-                 backdropFilter: "blur(12px)", 
-                 borderBottom: "1px solid var(--border-glass)",
-                 zIndex: 1070
-             }}>
+        <nav className="navbar navbar-expand-lg sticky-top glass-navbar shadow-sm py-2 px-3 transition-all">
             <div className="container">
                 <Link className="navbar-brand d-flex align-items-center fw-bolder fs-4" to="/">
                     <img src={MyTimeLogo} alt="Logo" width="32" height="32" className="me-2" />

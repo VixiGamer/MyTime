@@ -11,12 +11,26 @@
 }
 
 /*? Per cambiare il colore della pallina dello slider */
-.custom-slider::-webkit-slider-thumb {
-  background: #212529;
+[data-bs-theme="light"] .custom-slider::-webkit-slider-thumb {
+  background: #6c757d; /* dark thumb in light theme */
 }
-.custom-slider:active::-webkit-slider-thumb {
-  background: #6c757d; /* colore quando premuto */
+
+[data-bs-theme="light"] .custom-slider:active::-webkit-slider-thumb {
+  background: #a5a5a5;
 }
+
+[data-bs-theme="dark"] .custom-slider::-webkit-slider-thumb {
+  background: #f8f9fa; /* light thumb in dark theme */
+}
+
+[data-bs-theme="dark"] .custom-slider:active::-webkit-slider-thumb {
+  background: #ced4da;
+}
+
+[data-bs-theme="dark"] .custom-slider::-webkit-slider-runnable-track {
+  background: #495057;
+}
+
 
 .custom-slider::-moz-range-thumb {
   background: #212529;

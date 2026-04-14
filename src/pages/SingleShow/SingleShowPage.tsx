@@ -347,7 +347,7 @@ export default function SingleShowPage() {
                                         }}
                                         onClick={() => setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: isBeingWatched?.showName || singleShowData?.name || "", currentVal: isBeingWatched?.userRating || 0 })}
                                     >
-                                        {Number(isBeingWatched?.userRating) > 0 ? `Your rating: ${isBeingWatched?.userRating}/10 🍿` : "🍿 Rate Show"}
+                                        {Number(isBeingWatched?.userRating) > 0 ? `${isBeingWatched?.userRating}/10 🍿` : "🍿 Rate Show"}
                                     </button>
 
                                     {totalShowWatchedCount > 0 && (
@@ -589,7 +589,7 @@ export default function SingleShowPage() {
                                     {/* Rating della stagione */}
                                     <button type="button" className="pink-button-glass" onClick={() => setRatingModal({ isOpen: true, type: 'season', targetId: selectedSeason, targetName: `Season ${selectedSeason}`, currentVal: seasonProg?.userRating || 0 })}>
                                         {currentSeasonProgress?.userRating ? (
-                                            <>Season {selectedSeason}: <strong>{currentSeasonProgress.userRating}/10 🍿</strong></>
+                                            <><strong>{currentSeasonProgress.userRating}/10</strong></>
                                         ) : (
                                             <>Rate Season {selectedSeason}</>
                                         )}
@@ -646,7 +646,7 @@ export default function SingleShowPage() {
                                                             userRating < 10 ? 'green-glass-card' : 
                                                             'lightblue-glass-card')
                                                             : 'lightgray-glass-card shadow-none'}`}>
-                                                            Rating: {userRating}/10 🍿
+                                                            {userRating}/10 🍿
                                                         </small>
                                                     ) : null}
 

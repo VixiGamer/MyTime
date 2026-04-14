@@ -28,25 +28,20 @@ export default function List() {
             </header>
 
             {/* Input Section - Glassmorphism Style */}
-            <div className="card border-0 shadow-sm p-3 mb-5" style={{ 
-                borderRadius: "20px", 
-                backgroundColor: "rgba(255,255,255,0.6)", 
-                backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255,255,255,0.3)" 
-            }}>
+            <div className="mb-5">
                 <div className="input-group">
                     <input 
                         type="text" 
                         value={listName} 
                         onChange={(e) => setListName(e.target.value)} 
                         onKeyDown={handleKeyDown} 
-                        className="form-control border-0 bg-light py-3 ps-4 shadow-none" 
+                        className="form-control glass-card py-3 ps-4 shadow-none" 
                         placeholder="Create a new list (e.g., Must Watch)..." 
                         style={{ borderRadius: "15px 0 0 15px" }}
                     />
                     <button 
                         onClick={handleAddList} 
-                        className="btn btn-dark px-4 fw-bold" 
+                        className="btn rounded-pill btn-dark px-4 fw-bold" 
                         type="button"
                         style={{ borderRadius: "0 15px 15px 0" }}
                     >
@@ -73,7 +68,7 @@ export default function List() {
                             </div>
                             <button 
                                 type="button" 
-                                className="btn btn-link text-danger border-danger rounded-pill text-decoration-none px-2 py-1 small fw-semibold" 
+                                className="red-button-glass text-decoration-none small fw-semibold" 
                                 onClick={() => { if(window.confirm("Are you sure you want to delete this entire list?")) removeList(item.listId) }}
                             >
                                 Delete List
@@ -109,24 +104,24 @@ export default function List() {
                                                 />
                                                 
                                                 <div className="flex-grow-1 mx-3">
-                                                    <h6 className="fw-bold mb-0 text-dark">{show.name}</h6>
-                                                    <small className="text-muted d-none d-md-block">Tap to view details</small>
+                                                    <h6 className="fw-bold mb-0">{show.name}</h6>
+                                                    <small className="d-none d-md-block" style={{color: "#6c757d"}}>Tap to view details</small>
                                                 </div>
                                                 
                                                 <div>
                                                     <div className="d-flex gap-2 align-items-center">
                                                         {isCompleted && (
-                                                            <span className="badge rounded-pill bg-success-subtle text-success border border-success-subtle" style={{ fontSize: '0.7rem' }}>
+                                                            <span className="badge rounded-pill lightgreen-glass-card" style={{ fontSize: '0.7rem' }}>
                                                                 ✓ Watched
                                                             </span>
                                                         )}
                                                         {isWatching && (
-                                                            <span className="badge rounded-pill bg-warning-subtle text-warning border border-warning-subtle" style={{ fontSize: '0.7rem' }}>
+                                                            <span className="badge rounded-pill yellow-glass-card" style={{ fontSize: '0.7rem' }}>
                                                                 ● Watching
                                                             </span>
                                                         )}
                                                         {watchCount > 0 && (
-                                                            <span className="badge rounded-pill bg-dark-subtle text-dark border border-dark-subtle" style={{ fontSize: '0.7rem' }}>
+                                                            <span className="badge rounded-pill gray-glass-card border border-dark-subtle" style={{ fontSize: '0.7rem' }}>
                                                                 {watchCount}x
                                                             </span>
                                                         )}

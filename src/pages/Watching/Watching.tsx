@@ -176,9 +176,9 @@ export default function Watching() {
 
             {/* --- SEZIONE ARCHIVIO (Grafica Originale) --- */}
             <div className="mt-5 pt-4 border-top">
-                <button className="btn btn-outline-primary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseArchive">📦 ({archivedShows.length})</button>
+                <button className="lightblue-button-glass mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseArchive">Archive ({archivedShows.length})</button>
                 <div className="collapse" id="collapseArchive">
-                    <div className="card card-body bg-light border-0 shadow-sm">
+                    <div className="card card-body glass-card border-0 shadow-sm">
                         {archivedShows.length > 0 ? (
                             <div>
                                 <h3 className="text-secondary mb-3">📦 Archive</h3>
@@ -188,7 +188,7 @@ export default function Watching() {
                                             <img src={serie.showImage || defaultPoster} alt={serie.showName} onClick={() => navigate(`/show/${serie.showId}`)} style={{ borderTopLeftRadius: "5px", borderTopRightRadius: "5px", cursor: "pointer", objectFit: "cover", height: "15rem" }} />
                                             <div className="card-body p-2 text-center">
                                                 <h6 className="card-title text-truncate" style={{ fontSize: "0.9rem" }}>{serie.showName}</h6>
-                                                <button className="btn btn-sm btn-outline-primary w-100 mt-2" onClick={() => archiveShow(serie.showId)}>Restore</button>
+                                                <button className="lightblue-button-glass w-100 mt-2" onClick={() => archiveShow(serie.showId)}>Restore</button>
                                             </div>
                                         </div>
                                     ))}
@@ -204,22 +204,22 @@ export default function Watching() {
             {/* --- SEZIONE SERIE COMPLETATE --- */}
             <div className="mt-5 pt-4 border-top">
                 <button
-                    className="btn btn-outline-success mb-3"
+                    className="lightgreen-button-glass mb-3"
                     type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#collapseCompleted"
                 >
-                    ✅ ({completedShows.length})
+                    Compleated shows ({completedShows.length})
                 </button>
 
                 <div className="collapse show" id="collapseCompleted">
-                    <div className="card card-body bg-light border-0 shadow-sm">
+                    <div className="card card-body glass-card border-0 shadow-sm">
                         {completedShows.length > 0 ? (
                             <div>
                                 <h3 className="mb-4 text-success">✅ Completed shows</h3>
                                 <div className="d-flex flex-wrap gap-3">
                                     {completedShows.map((serie) => (
-                                        <div key={serie.showId} className="card shadow-sm border-0" style={{ width: "12rem", borderRadius: "10px", overflow: "hidden" }}>
+                                        <div key={serie.showId} className="card shadow-sm" style={{ width: "12rem", borderRadius: "10px", overflow: "hidden" }}>
                                             <div className="position-relative" style={{ height: "18rem" }}>
                                                 <img
                                                     src={serie.showImage || defaultPoster}
@@ -230,8 +230,8 @@ export default function Watching() {
 
                                                 {/* Badge per il conteggio TOTALE delle visioni */}
                                                 <div className="position-absolute top-0 end-0 m-2">
-                                                    <span className="badge bg-info text-dark shadow-sm d-flex align-items-center gap-1" style={{ fontSize: '0.9rem' }}>
-                                                        {serie.allTimeCount > 1 ? '🔄 ' : '✓ '}
+                                                    <span className="badge lightblue-button-glass text-light shadow-sm d-flex align-items-center gap-1" style={{ fontSize: '0.9rem' }}>
+                                                        {serie.allTimeCount > 1 ? '' : '✓ '}
                                                         {/* Mostra il totale storico accumulato */}
                                                         {serie.allTimeCount || 0} {serie.allTimeCount === 1 ? 'time' : 'times'}
                                                     </span>
@@ -244,14 +244,14 @@ export default function Watching() {
                                                 </h6>
 
                                                 <button
-                                                    className="btn btn-sm btn-success fw-bold py-2"
+                                                    className="btn lightgreen-button-glass fw-bold py-2"
                                                     onClick={() => {
                                                         if (window.confirm(`Start a new Rewatch for "${serie.showName}"? Your current progress will be reset but your all time history will remain saved.`)) {
                                                             startRewatch(serie.showId); // Aziona il reset di sessionWatched/sessionCount nel Context
                                                         }
                                                     }}
                                                 >
-                                                    🔄 Rewatch
+                                                    Rewatch
                                                 </button>
                                             </div>
                                         </div>

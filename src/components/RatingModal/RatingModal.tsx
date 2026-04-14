@@ -81,13 +81,6 @@ export default function RatingModal({ isOpen, targetName, initialVal = 0, onClos
                                 min="0" max="10" step="0.1"
                                 value={rating}
                                 onChange={(e) => setRating(parseFloat(e.target.value))}
-                                style={{ 
-                                    accentColor: 
-                                        rating === 10 ? '#42FBE0' : 
-                                        rating < 5 ? '#dc3545' : 
-                                        rating < 7 ? '#ffc107' : 
-                                        rating < 8 ? '#32C781' : '#198754'
-                                }}
                             />
 
                             {/* Pulsante per aumentare di 0.1 */}
