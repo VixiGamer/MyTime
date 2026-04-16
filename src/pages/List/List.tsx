@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useList } from "../../context/ListContext";
+import { useList } from "../../context/List/useList";
 import { useNavigate } from "react-router-dom";
 import "./List.css"
-import { useWatching } from "../../context/WatchingContext";
+import { useWatching } from "../../context/Watching/useWatching";
 
 export default function List() {
     const { lists, addList, removeList, removeShowFromList } = useList();
@@ -30,18 +30,18 @@ export default function List() {
             {/* Input Section - Glassmorphism Style */}
             <div className="mb-5">
                 <div className="input-group">
-                    <input 
-                        type="text" 
-                        value={listName} 
-                        onChange={(e) => setListName(e.target.value)} 
-                        onKeyDown={handleKeyDown} 
-                        className="form-control glass-card py-3 ps-4 shadow-none" 
-                        placeholder="Create a new list (e.g., Must Watch)..." 
+                    <input
+                        type="text"
+                        value={listName}
+                        onChange={(e) => setListName(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        className="form-control glass-card py-3 ps-4 shadow-none"
+                        placeholder="Create a new list (e.g., Must Watch)..."
                         style={{ borderRadius: "15px 0 0 15px" }}
                     />
-                    <button 
-                        onClick={handleAddList} 
-                        className="btn rounded-pill btn-dark px-4 fw-bold" 
+                    <button
+                        onClick={handleAddList}
+                        className="btn rounded-pill btn-dark px-4 fw-bold"
                         type="button"
                         style={{ borderRadius: "0 15px 15px 0" }}
                     >
@@ -66,10 +66,10 @@ export default function List() {
                                 <h2 className="fw-bold m-0">{item.listName}</h2>
                                 <small className="text-muted">ID: {item.listId}</small>
                             </div>
-                            <button 
-                                type="button" 
-                                className="red-button-glass text-decoration-none small fw-semibold" 
-                                onClick={() => { if(window.confirm("Are you sure you want to delete this entire list?")) removeList(item.listId) }}
+                            <button
+                                type="button"
+                                className="red-button-glass text-decoration-none small fw-semibold"
+                                onClick={() => { if (window.confirm("Are you sure you want to delete this entire list?")) removeList(item.listId) }}
                             >
                                 Delete List
                             </button>
@@ -84,30 +84,30 @@ export default function List() {
                             ) : (
                                 item.shows.map((show) => {
                                     const progress = getShowProgress(show.id);
-                                    const isCompleted = progress?.episodes.length! > 0 && progress?.episodes.every(ep => ep.sessionWatched);
+                                    const isCompleted = (progress?.episodes?.length || 0) > 0 && progress?.episodes.every(ep => ep.sessionWatched);
                                     const isWatching = progress && !isCompleted;
                                     const watchCount = progress?.allTimeCount || 0;
 
-                                    return(
-                                        <div 
-                                            key={show.id} 
+                                    return (
+                                        <div
+                                            key={show.id}
                                             className="glass-card card border-0 shadow-sm list-item-card transition-all"
                                             style={{ borderRadius: "15px", cursor: "pointer" }}
                                             onClick={() => navigate(`/show/${show.id}`)}
                                         >
                                             <div className="d-flex align-items-center p-2 p-md-3">
-                                                <img 
-                                                    src={show.image?.medium || show.image?.original} 
-                                                    alt={show.name} 
+                                                <img
+                                                    src={show.image?.medium || show.image?.original}
+                                                    alt={show.name}
                                                     className="rounded-3 shadow-sm"
-                                                    style={{ width: "60px", height: "85px", objectFit: "cover" }} 
+                                                    style={{ width: "60px", height: "85px", objectFit: "cover" }}
                                                 />
-                                                
+
                                                 <div className="flex-grow-1 mx-3">
                                                     <h6 className="fw-bold mb-0">{show.name}</h6>
-                                                    <small className="d-none d-md-block" style={{color: "#6c757d"}}>Tap to view details</small>
+                                                    <small className="d-none d-md-block" style={{ color: "#6c757d" }}>Tap to view details</small>
                                                 </div>
-                                                
+
                                                 <div>
                                                     <div className="d-flex gap-2 align-items-center">
                                                         {isCompleted && (
@@ -128,11 +128,11 @@ export default function List() {
                                                     </div>
                                                 </div>
 
-                                                <button 
-                                                    type="button" 
-                                                    className="btn btn-outline-danger btn-sm border-0 rounded-pill px-3 fw-bold" 
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-outline-danger btn-sm border-0 rounded-pill px-3 fw-bold"
                                                     onClick={(e) => {
-                                                        e.stopPropagation(); 
+                                                        e.stopPropagation();
                                                         const confirmRemove = window.confirm(
                                                             `Are you sure you want to delete "${show.name}" form "${item.listName}"?`
                                                         );

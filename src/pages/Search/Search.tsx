@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import axios from "axios";
 import SearchedShowCard from "../../components/SearchedShow/SearchedShow";
-import { useSearch } from "../../context/SearchContext";
+import { useSearch } from "../../context/Search/useSearch";
 
 
 export default function Search() {

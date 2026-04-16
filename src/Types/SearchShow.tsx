@@ -23,7 +23,7 @@ export interface Show {
   weight: number
   network?: Network
   webChannel?: WebChannel
-  dvdCountry: null | string     //! MODIFICATO (prima era 'any')
+  dvdCountry: null | string | number     //! MODIFICATO - Allineato ai dati completi della show detail response
   externals: Externals
   image: Image
   summary?: string

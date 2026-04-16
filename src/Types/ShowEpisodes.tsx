@@ -14,6 +14,7 @@ export interface SingleEpisode {
   rating: Rating
   image: Image
   summary: string
+  watchDates?: string[];    //Agiunto io
   _links: Links
 }
 

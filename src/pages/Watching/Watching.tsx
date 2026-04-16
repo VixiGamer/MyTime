@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useWatching } from "../../context/WatchingContext";
+import { useWatching } from "../../context/Watching/useWatching";
 import type { SingleEpisode } from "../../Types/ShowEpisodes";
 import { useState } from "react";
 import RatingModal from "../../components/RatingModal/RatingModal";
@@ -73,6 +73,23 @@ export default function Watching() {
             currentVal: 0
         });
     };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0)
+
+    function isToday(episodeAirDateStr: string) {
+        const episodeAirDate = new Date(episodeAirDateStr || "")
+        episodeAirDate.setHours(0, 0, 0, 0)
+        const diffTime = episodeAirDate.getTime() - today.getTime()
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+        if (diffDays === 0) {
+            return true
+        } else {
+            return false
+        }
+    }
+
 
     return (
         <div className="p-4">
@@ -154,7 +171,8 @@ export default function Watching() {
                                 {nextEpisode ? (
                                     <div className="glass-card p-2" style={{ maxWidth: "35rem" }}>
                                         <p className="mb-2">
-                                            {!isSeasonPremiere && !isSeasonFinale && <span className="badge gray-button-glass me-2">Next</span>}
+                                            {!isSeasonPremiere && !isSeasonFinale && isToday(nextEpisode.episodeData.airdate) === false && <span className="badge gray-button-glass me-2">Next</span>}
+                                            {isToday(nextEpisode.episodeData.airdate) && <span className="badge red-button-glass me-2">NEW</span>}
                                             {isSeasonFinale && <span className="badge red-button-glass me-2">Finale 🏁</span>}
                                             {isSeasonPremiere && <span className="badge lightblue-button-glass me-2">Premier 🍿</span>}
                                             <strong>S{nextEpisode.episodeData.season}E{nextEpisode.episodeData.number}</strong> - {nextEpisode.episodeData.name}
@@ -228,10 +246,8 @@ export default function Watching() {
 
                                                 {/* Badge per il conteggio TOTALE delle visioni */}
                                                 <div className="position-absolute top-0 end-0 m-2">
-                                                    <span className="badge lightblue-button-glass text-light shadow-sm d-flex align-items-center gap-1" style={{ fontSize: '0.9rem' }}>
-                                                        {serie.allTimeCount > 1 ? '' : '✓ '}
-                                                        {/* Mostra il totale storico accumulato */}
-                                                        {serie.allTimeCount || 0} {serie.allTimeCount === 1 ? 'time' : 'times'}
+                                                    <span className="badge lightblue-button-glass text-light shadow-sm d-flex align-items-center gap-1" style={{ fontSize: '0.9rem' }}>                                                        {/* Mostra il totale storico accumulato */}
+                                                        {serie.allTimeCount} {serie.allTimeCount === 1 ? 'time' : 'times'}
                                                     </span>
                                                 </div>
                                             </div>
@@ -271,9 +287,9 @@ export default function Watching() {
                 initialVal={ratingModal.currentVal}
                 onClose={() => setRatingModal({ ...ratingModal, isOpen: false })}
                 onSubmit={(v) => {
-                    if (ratingModal.type === 'episode') rateEpisode(ratingModal.showId, ratingModal.targetId, v);
-                    if (ratingModal.type === 'season') rateSeason(ratingModal.showId, ratingModal.targetId, v);
-                    if (ratingModal.type === 'show') rateShow(ratingModal.showId, v);
+                    if (ratingModal.type === 'episode') rateEpisode(ratingModal.showId, ratingModal.targetId, v || 0);
+                    if (ratingModal.type === 'season') rateSeason(ratingModal.showId, ratingModal.targetId, v || 0);
+                    if (ratingModal.type === 'show') rateShow(ratingModal.showId, v || 0);
                     setRatingModal({ ...ratingModal, isOpen: false });
                 }}
             />

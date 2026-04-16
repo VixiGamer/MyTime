@@ -12,6 +12,7 @@ export interface ShowProgress {
     allTimeCount: number;      // Quante volte completata in totale nella storia
     episodes: EpisodeWatched[];
     seasons: SeasonProgress[]; 
+    watchDates?: string[];          //Aggiunto io
 }
 
 // Voto e progresso della singola Stagione

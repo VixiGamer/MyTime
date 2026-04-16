@@ -5,10 +5,10 @@ import type { Season } from "../../Types/Seasons";
 import type { SingleEpisode } from "../../Types/ShowEpisodes";
 import defaultPoster from "../../images/poster_default.png";
 import Error500 from "../../components/Error500/Error500";
-import { useWatching } from "../../context/WatchingContext";
-import { getRatingColor } from "../../utils/ratingHelper";
+import { useWatching } from "../../context/Watching/useWatching";
 import RatingModal from "../../components/RatingModal/RatingModal";
 import { Vibrant } from "node-vibrant/browser";
+import type { Palette, Swatch } from "@vibrant/color";
 
 
 export default function SingleSeasonDetailedPage() {
@@ -21,6 +21,9 @@ export default function SingleSeasonDetailedPage() {
     const [seasonEpisodes, setSeasonEpisodes] = useState<SingleEpisode[]>([]);
     const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
     const [posterImgLoaded, setPosterImgLoaded] = useState(false);
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
 
     const [bgGradient, setBgGradient] = useState("");
 
@@ -44,6 +47,20 @@ export default function SingleSeasonDetailedPage() {
         currentVal: 0
     });
 
+    //Questa funzione serve per determinare se la stagione e uscita oggi
+    function isToday(seasonPremierDateStr: string | undefined) {
+        const seasonPremierDate = new Date(seasonPremierDateStr || "")
+        seasonPremierDate.setHours(0, 0, 0, 0)
+        const diffTime = seasonPremierDate.getTime() - today.getTime()
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+        if (diffDays === 0) {
+            return true
+        } else {
+            return false
+        }
+    }
+
     // Fetch Dati Stagione
     useEffect(() => {
         if (!showId || !seasonId) return;
@@ -52,7 +69,9 @@ export default function SingleSeasonDetailedPage() {
         const isNumericSeasonId = /^\d+$/.test(seasonId);
 
         if (!isNumericShowId || !isNumericSeasonId) {
-            setError404(true);
+            setTimeout(() => {
+                setError404(true);
+            }, 0);
             return;
         }
 
@@ -90,11 +109,11 @@ export default function SingleSeasonDetailedPage() {
 
         Vibrant.from(imgOriginalMedium)
             .getPalette()
-            .then((palette: any) => {
+            .then((palette: Palette) => {
 
                 const colors = Object.values(palette)
-                .filter(Boolean)
-                .map((swatch: any) => swatch._rgb);
+                .filter((swatch): swatch is Swatch => Boolean(swatch))
+                .map((swatch) => swatch.rgb);
 
             if (colors.length === 0) return;
 
@@ -172,46 +191,61 @@ export default function SingleSeasonDetailedPage() {
                             <h5 className="fw-bold text-uppercase mb-1" style={{ color: accentColor, letterSpacing: "1.5px" }}>
                                 {seasonEpisodes[0]?._links?.show?.name}
                             </h5>
-                            <h1 className="display-4 fw-bold mb-3">Season {singleSeasonData?.number}</h1>
+                            <div className="d-flex align-items-center gap-3">
+                                <h1 className="display-4 fw-bold mb-3">Season {singleSeasonData?.number}</h1>
+                                {isToday(singleSeasonData?.premiereDate) && (
+                                    <div className="red-button-glass fw-bold shadow-sm transition-all px-3 py-2 mb-3">
+                                        NEW
+                                    </div>
+                                )}
+                            </div>
+                            
 
                             {/* Action Buttons */}
                             <div className="d-flex gap-3 mb-4 align-items-center flex-wrap">
-                                {userSeasonRating ? (
-                                    <button
-                                        className={`${
-                                            userSeasonRating < 3 ? 'pink-button-glass' : 
-                                            userSeasonRating < 5 ? 'red-button-glass' : 
-                                            userSeasonRating < 7 ? 'yellow-button-glass' : 
-                                            userSeasonRating < 8 ? 'lightgreen-button-glass' : 
-                                            userSeasonRating < 10 ? 'green-button-glass' : 
-                                            'lightblue-button-glass'
-                                        } fw-bold shadow-sm transition-all px-3 py-2`}
-                                        style={{
-                                            color: 'var(--text-main)',
-                                        }}
-                                        onClick={() => setRatingModal({
-                                            isOpen: true,
-                                            targetName: `Season ${singleSeasonData?.number}`,
-                                            currentVal: userSeasonRating
-                                        })}   
-                                    >
-                                        <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {userSeasonRating}/10
-                                    </button>
-                                ) : (
-                                    <button
-                                        className="lightgray-button-glass fw-bold shadow-sm transition-all px-3 py-2"
-                                        onClick={() => setRatingModal({
-                                            isOpen: true,
-                                            targetName: `Season ${singleSeasonData?.number}`,
-                                            currentVal: userSeasonRating
-                                        })}                                    >
-                                        <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> Rate Show
-                                    </button>
+                                {singleSeasonData?.premiereDate === undefined || new Date(singleSeasonData?.premiereDate) < today && (
+                                    <>
+                                        {userSeasonRating ? (
+                                            <button
+                                                className={`${
+                                                    userSeasonRating < 3 ? 'pink-button-glass' : 
+                                                    userSeasonRating < 5 ? 'red-button-glass' : 
+                                                    userSeasonRating < 7 ? 'yellow-button-glass' : 
+                                                    userSeasonRating < 8 ? 'lightgreen-button-glass' : 
+                                                    userSeasonRating < 10 ? 'green-button-glass' : 
+                                                    'lightblue-button-glass'
+                                                } fw-bold shadow-sm transition-all px-3 py-2`}
+                                                style={{
+                                                    color: 'var(--text-main)',
+                                                }}
+                                                onClick={() => setRatingModal({
+                                                    isOpen: true,
+                                                    targetName: `Season ${singleSeasonData?.number}`,
+                                                    currentVal: userSeasonRating
+                                                })}   
+                                            >
+                                                <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {userSeasonRating}/10
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="lightgray-button-glass fw-bold shadow-sm transition-all px-3 py-2"
+                                                onClick={() => setRatingModal({
+                                                    isOpen: true,
+                                                    targetName: `Season ${singleSeasonData?.number}`,
+                                                    currentVal: userSeasonRating
+                                                })}                                    >
+                                                <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> Rate Show
+                                            </button>
+                                        )}
+                                    </>
                                 )}
 
-                                <span className="badge rounded-pill gray-glass-card p-2 shadow-sm">
-                                    {singleSeasonData?.episodeOrder} Episodes
-                                </span>
+                                {singleSeasonData?.episodeOrder && (
+                                    <span className="badge rounded-pill gray-glass-card p-2 shadow-sm">
+                                        {singleSeasonData?.episodeOrder} Episodes
+                                    </span>
+                                )}
+                                
 
                                 {totalSeasonViews > 0 && (
                                     <span className="badge rounded-pill gray-glass-card p-2 shadow-sm">
@@ -299,7 +333,7 @@ export default function SingleSeasonDetailedPage() {
                     initialVal={ratingModal.currentVal}
                     onClose={() => setRatingModal({ ...ratingModal, isOpen: false })}
                     onSubmit={(voto) => {
-                        rateSeason(Number(showId), singleSeasonData!.number, voto);
+                        rateSeason(Number(showId), singleSeasonData!.number, voto || 0);
                         setRatingModal({ ...ratingModal, isOpen: false });
                     }}
                 />

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./RatingModal.css"
 import { getRatingColor } from "../../utils/ratingHelper"
 
@@ -11,11 +11,15 @@ interface RatingModalProps {
 }
 
 export default function RatingModal({ isOpen, targetName, initialVal = 0, onClose, onSubmit }: RatingModalProps) {
-    const [rating, setRating] = useState<number>(initialVal);
+const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+    const [rating, setRating] = useState(initialVal);
 
-    useEffect(() => {
-        if (isOpen) setRating(initialVal);
-    }, [initialVal, isOpen]);
+    if (isOpen !== prevIsOpen) {
+        setPrevIsOpen(isOpen);
+        if (isOpen) {
+            setRating(initialVal);
+        }
+    }
 
     if (!isOpen) return null;
 

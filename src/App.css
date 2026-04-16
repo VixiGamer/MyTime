@@ -280,3 +280,12 @@ body {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px) !important;
 }
+
+.scrollbar-no {
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* IE/Edge vecchi */
+}
+
+.scrollbar-no::-webkit-scrollbar {
+  display: none;              /* Chrome, Safari */
+}

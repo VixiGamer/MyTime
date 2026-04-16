@@ -1,18 +1,19 @@
-import axios, { formToJSON } from "axios";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import type { SingleShowDetails } from "../../Types/SingleShowDetails";
 import { useNavigate, useParams } from "react-router-dom";
 import type { AllEpisodes, SingleEpisode } from "../../Types/ShowEpisodes";
-import { useList } from "../../context/ListContext";
+import { useList } from "../../context/List/useList";
 import type { Season } from "../../Types/Seasons";
-import { useWatching } from "../../context/WatchingContext";
+import { useWatching } from "../../context/Watching/useWatching";
 import type { SingleCast } from "../../Types/Cast";
 import RatingModal from "../../components/RatingModal/RatingModal";
 import defaultPoster from "../../images/poster_default.png";
 import defaultEpisodePoster from "../../images/episode_default.png";
 import Error500 from "../../components/Error500/Error500";
-import { getRatingColor } from "../../utils/ratingHelper"
 import { Vibrant } from "node-vibrant/browser";
+import type { Palette, Swatch } from "@vibrant/color";
+
 
 
 export default function SingleShowPage() {
@@ -175,29 +176,29 @@ export default function SingleShowPage() {
 
         Vibrant.from(imgOriginalMedium)
             .getPalette()
-            .then((palette: any) => {
+            .then((palette: Palette) => {
 
                 const colors = Object.values(palette)
-                .filter(Boolean)
-                .map((swatch: any) => swatch._rgb);
+                    .filter((swatch): swatch is Swatch => Boolean(swatch))
+                    .map((swatch) => swatch.rgb);
 
-            if (colors.length === 0) return;
+                if (colors.length === 0) return;
 
-            const selected = colors.slice(0, 5);
+                const selected = colors.slice(0, 5);
 
-            const colorStrings = selected.map(
-                (c: number[]) => `rgb(${c.join(",")})`
-            );
-            
-            const gradient = `linear-gradient(135deg, ${colorStrings.join(",")})`;
+                const colorStrings = selected.map(
+                    (c: number[]) => `rgb(${c.join(",")})`
+                );
 
-            setBgGradient(gradient);
+                const gradient = `linear-gradient(135deg, ${colorStrings.join(",")})`;
+
+                setBgGradient(gradient);
             })
             .catch((err) => {
-            console.error("Errore Vibrant:", err);
+                console.error("Errore Vibrant:", err);
             });
 
-        }, [imgOriginalMedium]
+    }, [imgOriginalMedium]
     );
 
     function formatDate(date?: string | null): string {
@@ -346,14 +347,13 @@ export default function SingleShowPage() {
                                 <div className="d-flex gap-3 mb-4 flex-wrap">
                                     {Number(isBeingWatched?.userRating) ? (
                                         <button
-                                            className={`${
-                                                Number(isBeingWatched?.userRating) < 3 ? 'pink-button-glass' : 
-                                                Number(isBeingWatched?.userRating) < 5 ? 'red-button-glass' : 
-                                                Number(isBeingWatched?.userRating) < 7 ? 'yellow-button-glass' : 
-                                                Number(isBeingWatched?.userRating) < 8 ? 'lightgreen-button-glass' : 
-                                                Number(isBeingWatched?.userRating) < 10 ? 'green-button-glass' : 
-                                                'lightblue-button-glass'
-                                            } fw-bold shadow-sm transition-all px-3 py-2`}
+                                            className={`${Number(isBeingWatched?.userRating) < 3 ? 'pink-button-glass' :
+                                                Number(isBeingWatched?.userRating) < 5 ? 'red-button-glass' :
+                                                    Number(isBeingWatched?.userRating) < 7 ? 'yellow-button-glass' :
+                                                        Number(isBeingWatched?.userRating) < 8 ? 'lightgreen-button-glass' :
+                                                            Number(isBeingWatched?.userRating) < 10 ? 'green-button-glass' :
+                                                                'lightblue-button-glass'
+                                                } fw-bold shadow-sm transition-all px-3 py-2`}
                                             style={{
                                                 color: 'var(--text-main)',
                                             }}
@@ -372,7 +372,7 @@ export default function SingleShowPage() {
 
                                     {totalShowWatchedCount > 0 && (
                                         <span className="gray-button-glass d-flex align-items-center px-3">
-                                            Total Views: {totalShowWatchedCount}
+                                            <i className="bi bi-eye-fill me-1" /> {totalShowWatchedCount}
                                         </span>
                                     )}
                                 </div>
@@ -397,7 +397,7 @@ export default function SingleShowPage() {
                                     </div>
                                     <div className="col">
                                         <small className="text-muted d-block">TVMaze Rating</small>
-                                        <i className="bi bi-star-fill" style={{color: "#ffc107"}} /> <strong>{singleShowData?.rating?.average === null ? "N/A" : singleShowData?.rating?.average}</strong>
+                                        <i className="bi bi-star-fill" style={{ color: "#ffc107" }} /> <strong>{singleShowData?.rating?.average === null ? "N/A" : singleShowData?.rating?.average}</strong>
                                     </div>
                                     <div className="col">
                                         <small className="text-muted d-block">Network</small>
@@ -538,20 +538,21 @@ export default function SingleShowPage() {
                         {/* --- LISTA EPISODI --- */}
                         <div className="glass-card" style={{ marginTop: "9rem" }}>
                             <div className="d-flex align-items-end m-3">
-                                <img 
+                                <img
                                     src={selectedSeasonPoster || defaultPoster} alt={`Season ${selectedSeason}`}
                                     className="shadow-lg"
-                                    style={{ height: "10rem", borderRadius: "15px", position: "absolute", cursor: "pointer" }}
+                                    style={{ height: "10rem", width: "6.8rem", borderRadius: "15px", position: "absolute", cursor: "pointer", objectFit: "cover" }}
                                     onClick={() => {
-                                            const season = seasonsDetails.find(s => s.number === selectedSeason);
-                                            if (season) {
-                                                navigate(`/show/${singleShowData?.id}/season/${season.id}`);
-                                            }
-                                        }}
+                                        const season = seasonsDetails.find(s => s.number === selectedSeason);
+                                        if (season) {
+                                            navigate(`/show/${singleShowData?.id}/season/${season.id}`);
+                                        }
+                                    }}
                                     title={`Get Season ${selectedSeason} info`}
-                                    />
+                                />
 
-                                <div className="d-flex align-items-end gap-3" style={{ marginLeft: "9rem" }}>
+
+                                <div className="d-flex flex-wrap align-items-end gap-3" style={{ marginLeft: "9rem" }}>
                                     {/* Dropdown per selezionare la stazione */}
                                     <div className="dropdown">
                                         <button className="gray-button-glass dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -607,13 +608,27 @@ export default function SingleShowPage() {
                                     )}
 
                                     {/* Rating della stagione */}
-                                    <button type="button" className="pink-button-glass" onClick={() => setRatingModal({ isOpen: true, type: 'season', targetId: selectedSeason, targetName: `Season ${selectedSeason}`, currentVal: seasonProg?.userRating || 0 })}>
-                                        {currentSeasonProgress?.userRating ? (
-                                            <><i className="bi bi-heart-fill" style={{ color: "#dc3545" }}></i> <strong>{currentSeasonProgress.userRating}/10</strong></>
-                                        ) : (
-                                            <>Rate Season {selectedSeason}</>
-                                        )}
-                                    </button>
+                                    {isBeingWatched && (
+                                        <button
+                                            type="button"
+                                            className="pink-button-glass flex-shrink-0"
+                                            onClick={() =>
+                                                setRatingModal({
+                                                    isOpen: true,
+                                                    type: 'season',
+                                                    targetId: selectedSeason,
+                                                    targetName: `Season ${selectedSeason}`,
+                                                    currentVal: seasonProg?.userRating || 0
+                                                })
+                                            }
+                                        >
+                                            {currentSeasonProgress?.userRating ? (
+                                                <><i className="bi bi-heart-fill" style={{ color: "#dc3545" }}></i> <strong>{currentSeasonProgress.userRating}/10</strong></>
+                                            ) : (
+                                                <>Rate Season {selectedSeason}</>
+                                            )}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -633,6 +648,20 @@ export default function SingleShowPage() {
                                 const watchedStatus = epProg?.sessionWatched;
                                 const userRating = epProg?.userRating;
                                 const totalViews = Number(epProg?.sessionCount || 0);
+                                const today = new Date();
+                                const episodeAirDate = new Date(epProg?.episodeData.airdate || "");
+                                // Lo faccio cosi oggi non risulta passato solo perche è un orario diverso
+                                today.setHours(0, 0, 0, 0)
+                                episodeAirDate.setHours(0, 0, 0, 0)
+
+                                // Ora converto il milli secondi e poi in giorni
+                                const diffTime = episodeAirDate.getTime() - today.getTime()
+                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+                                //Ora determio lo stato, se l'episodio uscira in futuro, se esce oggi oppure se e gia uscito in passato
+                                // const isFuture = diffDays > 0;
+                                const isToday = diffDays === 0;
+                                // const isPast = diffDays < 0;
 
                                 return (
                                     <>
@@ -641,44 +670,54 @@ export default function SingleShowPage() {
                                                 src={episode.image?.medium || episode.image?.original || defaultEpisodePoster}
                                                 alt={episode?.name}
                                                 onClick={() => navigate(`/show/${singleShowData?.id}/episode/${episode.id}`)}
-                                                style={{ borderRadius: "15px", objectFit: "cover", width: "8rem", height: "4.5rem", cursor: "pointer" }}
+                                                style={{ borderRadius: "15px", objectFit: "cover", width: "8rem", height: "4.5rem", cursor: "pointer", flexShrink: 0 }}
                                                 title={`Get info about '${episode.name}' - (S${episode.season}E${episode.number})`}
                                             />
 
-                                            <div className="mx-3 flex-grow-1">
-                                                <div className="d-flex align-items-center gap-2">
+                                            <div className="mx-3 flex-grow-1" style={{ minWidth: 0 }}>
+                                                <div className="d-flex align-items-center flex-wrap gap-2">
                                                     <p className="mb-0"><strong>{episode.season}X{episode.number}</strong></p>
 
-                                                    {/* Badge Unificato Visioni */}
-                                                    {totalViews > 0 && (
-                                                        <span className="badge rounded-pill green-glass-card" style={{ fontSize: '0.7rem' }}>
-                                                            ✓ Watched {totalViews > 1 ? `${totalViews} times` : ''}
-                                                        </span>
-                                                    )}
+                                                    <div className="d-flex flex-nowrap align-items-center overflow-x-auto scrollbar-no gap-2" style={{ flex: 1 }}>
+                                                        {/* Badge se l'episodio e uscito oggi */}
+                                                        {isToday && (
+                                                            <span className="badge rounded-pill red-glass-card" style={{ fontSize: "0.7rem" }}>
+                                                                NEW
+                                                            </span>
+                                                        )}
 
-                                                    {/* Rating del episodio */}
-                                                    {userRating ? (
-                                                        <small className={`badge rounded-pill ${userRating
-                                                            ? (userRating < 3 ? 'pink-glass-card' : 
-                                                            userRating < 5 ? 'red-glass-card' : 
-                                                            userRating < 7 ? 'yellow-glass-card' : 
-                                                            userRating < 8 ? 'lightgreen-glass-card' : 
-                                                            userRating < 10 ? 'green-glass-card' : 
-                                                            'lightblue-glass-card')
-                                                            : 'lightgray-glass-card shadow-none'}`}>
-                                                            <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {userRating}/10
-                                                        </small>
-                                                    ) : null}
+                                                        {/* Badge Unificato Visioni */}
+                                                        {totalViews > 0 && (
+                                                            <span className="badge rounded-pill green-glass-card d-none d-md-block" style={{ fontSize: '0.7rem' }}>
+                                                                ✓ Watched {totalViews > 1 ? `${totalViews} times` : ''}
+                                                            </span>
+                                                        )}
+
+                                                        {/* Rating del episodio */}
+                                                        {userRating ? (
+                                                            <small className={`badge rounded-pill ${userRating
+                                                                ? (userRating < 3 ? 'pink-glass-card' :
+                                                                    userRating < 5 ? 'red-glass-card' :
+                                                                        userRating < 7 ? 'yellow-glass-card' :
+                                                                            userRating < 8 ? 'lightgreen-glass-card' :
+                                                                                userRating < 10 ? 'green-glass-card' :
+                                                                                    'lightblue-glass-card')
+                                                                : 'lightgray-glass-card shadow-none'}`}>
+                                                                <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {userRating}/10
+                                                            </small>
+                                                        ) : null}
+                                                    </div>
 
                                                 </div>
                                                 <p className="mb-0 text-truncate" style={{ maxWidth: "250px" }}>{episode.name}</p>
                                                 <p className="mb-0 text-truncate" style={{ maxWidth: "250px", color: "#6c757d" }}>{formatDate(episode.airdate)}</p>
                                             </div>
 
-                                            {isBeingWatched && (
-                                                <div className="dropdown">
-                                                    <button className={`rounded-circle ${watchedStatus ? 'lightgreen-glass-card' : 'gray-glass-card'}`} type="button" data-bs-toggle="dropdown" style={{ width: "32px", height: "32px", padding: 0 }}>
-                                                        {watchedStatus ? '✓' : '+'}
+                                            {isBeingWatched && episodeAirDate < today && (
+                                                <div className="dropdown flex-shrink-0">
+
+                                                    <button className={`rounded-circle d-flex align-items-center justify-content-center ${watchedStatus ? 'lightgreen-glass-card' : 'gray-glass-card'}`} type="button" data-bs-toggle="dropdown" style={{ width: "32px", height: "32px", padding: 0 }}>
+                                                        {watchedStatus ? '✓' : <i className="bi bi-plus-lg"></i>}
                                                     </button>
                                                     <ul className="dropdown-menu dropdown-menu-end glass-card shadow" style={{ borderRadius: "12px" }}>
                                                         <li>
@@ -687,9 +726,12 @@ export default function SingleShowPage() {
                                                             </button>
                                                         </li>
                                                         <li>
-                                                            <button className="dropdown-item py-2" onClick={() => rewatchEpisode(Number(showId), episode.id)}>
-                                                                Rewatch Episode
-                                                            </button>
+                                                            {watchedStatus && (
+                                                                <button className="dropdown-item py-2" onClick={() => rewatchEpisode(Number(showId), episode.id)}>
+                                                                    Rewatch Episode
+                                                                </button>
+                                                            )}
+
                                                         </li>
                                                         {watchedStatus && (
                                                             <li>
@@ -701,7 +743,23 @@ export default function SingleShowPage() {
                                                     </ul>
                                                 </div>
                                             )}
+
+                                            {/* Questo serve per far vedere quati giorni mancano a quando esce l'episodio */}
+                                            {diffDays === 1 && (
+                                                <div className="rounded-pill gray-button-glass flex-shrink-0">
+                                                    <i className="bi bi-calendar-fill" /> {diffDays} day
+                                                </div>
+                                            )}
+
+                                            {diffDays > 1 && (
+                                                <div className="rounded-pill gray-button-glass flex-shrink-0">
+                                                    <i className="bi bi-calendar-fill" /> {diffDays} days
+                                                </div>
+                                            )}
+
                                         </div>
+
+                                        {/* La linea che separa ogni episodio */}
                                         {index < arr.length - 1 && <hr className="my-0" style={{ marginLeft: 'calc(8rem + 2rem)', width: 'auto' }} />}
                                     </>
                                 );
@@ -710,15 +768,15 @@ export default function SingleShowPage() {
 
                     </div>
 
-                    <div className="" style={{marginTop: "5rem"}}>
+                    <div style={{ marginTop: "4rem" }}>
                         <h2 className="fw-bold mb-4 px-2">Cast</h2>
-                        <div className="glass-card container d-flex flex-row flex-wrap">
+                        <div className="glass-card p-3 d-flex flex-nowrap gap-2 overflow-x-auto scrollbar-no" style={{ scrollBehavior: "smooth" }}>
                             {cast.map((cast) => {
                                 return (
-                                    <div className="card border p-0" style={{ textAlign: "center", cursor: "pointer", width: "10rem", borderRadius: "15px" }} onClick={() => navigate(`/actor/${cast.person.id}`)}>
+                                    <div className="card border p-0" style={{ textAlign: "center", cursor: "pointer", flex: "0 0 auto", width: "10rem", borderRadius: "15px" }} onClick={() => navigate(`/actor/${cast.person.id}`)}>
                                         <img
                                             src={cast.person.image?.medium || cast.person.image?.original}
-                                            style={{borderTopLeftRadius: "15px", borderTopRightRadius: "15px"}}
+                                            style={{ borderTopLeftRadius: "15px", borderTopRightRadius: "15px" }}
                                         />
                                         <div className="mt-2 px-3 h-100 d-flex flex-column justify-content-center align-content-center">
                                             <strong>{cast.person.name}</strong>

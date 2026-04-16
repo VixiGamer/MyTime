@@ -4,10 +4,10 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import defaultEpisodePoster from "../../images/episode_default.png";
 import Error500 from "../../components/Error500/Error500";
-import { useWatching } from "../../context/WatchingContext";
-import { getRatingColor } from "../../utils/ratingHelper";
+import { useWatching } from "../../context/Watching/useWatching";
 import RatingModal from "../../components/RatingModal/RatingModal";
 import { Vibrant } from "node-vibrant/browser";
+import type { Palette, Swatch } from "@vibrant/color";
 
 
 export default function SingleEpisodeDetailedPage() {
@@ -22,6 +22,9 @@ export default function SingleEpisodeDetailedPage() {
     const [error500, setError500] = useState(false);
     const [episodeImgLoaded, setEpisodeImgLoaded] = useState(false);
     const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
 
     // --- Context Data ---
     // Aggiungiamo 'rewatchEpisode' per gestire l'incremento dello storico totale
@@ -39,6 +42,20 @@ export default function SingleEpisodeDetailedPage() {
     const totalViews = episodeProgress?.allTimeCount || 0;
     const isCurrentlyWatched = episodeProgress?.sessionWatched || false;
 
+    //Questa funzione serve per determinare se l'episodio e uscito oggi
+    function isToday(episodeAirDateStr: string) {
+        const episodeAirDate = new Date(episodeAirDateStr || "")
+        episodeAirDate.setHours(0, 0, 0, 0)
+        const diffTime = episodeAirDate.getTime() - today.getTime()
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+        if (diffDays === 0) {
+            return true
+        } else {
+            return false
+        }
+    }
+
     // --- Fetch Data ---
     useEffect(() => {
         if (!showId || !episodeId) return;
@@ -47,7 +64,9 @@ export default function SingleEpisodeDetailedPage() {
         const isNumericEpisodeId = /^\d+$/.test(episodeId);
 
         if (!isNumericShowId || !isNumericEpisodeId) {
-            setError404(true);
+            setTimeout(() => {
+                setError404(true);
+            }, 0);
             return;
         }
 
@@ -82,11 +101,11 @@ export default function SingleEpisodeDetailedPage() {
 
         Vibrant.from(imgOriginalMedium)
             .getPalette()
-            .then((palette: any) => {
+            .then((palette: Palette) => {
 
                 const colors = Object.values(palette)
-                .filter(Boolean)
-                .map((swatch: any) => swatch._rgb);
+                .filter((swatch): swatch is Swatch => Boolean(swatch))
+                .map((swatch) => swatch.rgb);
 
             if (colors.length === 0) return;
 
@@ -145,9 +164,17 @@ export default function SingleEpisodeDetailedPage() {
                             <h5 className="text-muted text-uppercase fw-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>
                                 {singleEpisodeData._links.show.name} • Season {singleEpisodeData.season}
                             </h5>
-                            <h1 className="display-5 fw-bold mb-2">
-                                {singleEpisodeData.number}. {singleEpisodeData.name || "Untitled Episode"}
-                            </h1>
+                            <div className="d-flex align-items-center gap-3">
+                                <h1 className="display-5 fw-bold mb-2">
+                                    {singleEpisodeData.number}. {singleEpisodeData.name || "Untitled Episode"}
+                                </h1>
+
+                                {isToday(singleEpisodeData.airdate) && (
+                                    <div className="red-button-glass fw-bold shadow-sm transition-all px-3 py-2">
+                                        NEW
+                                    </div>
+                                )}
+                            </div>
                         </header>
 
                         <div className="row g-4">
@@ -176,31 +203,35 @@ export default function SingleEpisodeDetailedPage() {
                                         <h5 className="fw-bold">History & Rating</h5>
                                     </div>
                                     
-                                    <div className="mb-4 d-flex align-items-center gap-2 flex-wrap">
+                                    <div className={`mb-4 d-flex align-items-center ${new Date(singleEpisodeData.airdate) < today ? "" : "d-none"} gap-2 flex-wrap`}>
                                         {/* Pulsante Rating */}
-                                        {userEpisodeRating ? (
-                                            <button
-                                                className={`${
-                                                    userEpisodeRating < 3 ? 'pink-button-glass' : 
-                                                    userEpisodeRating < 5 ? 'red-button-glass' : 
-                                                    userEpisodeRating < 7 ? 'yellow-button-glass' : 
-                                                    userEpisodeRating < 8 ? 'lightgreen-button-glass' : 
-                                                    userEpisodeRating < 10 ? 'green-button-glass' : 
-                                                    'lightblue-button-glass'
-                                                } fw-bold shadow-sm transition-all px-3 py-2`}
-                                                style={{
-                                                    color: 'var(--text-main)',
-                                                }}
-                                                onClick={() => setIsRatingModalOpen(true)}  
-                                            >
-                                                <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {userEpisodeRating}/10
-                                            </button>
-                                        ) : (
-                                            <button
-                                                className="lightgray-button-glass fw-bold shadow-sm transition-all px-3 py-2"
-                                                onClick={() => setIsRatingModalOpen(true)}                                   >
-                                                <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> Rate Show
-                                            </button>
+                                        {isBeingWatched  && (
+                                            <>
+                                                {userEpisodeRating ? (
+                                                    <button
+                                                        className={`${
+                                                            userEpisodeRating < 3 ? 'pink-button-glass' : 
+                                                            userEpisodeRating < 5 ? 'red-button-glass' : 
+                                                            userEpisodeRating < 7 ? 'yellow-button-glass' : 
+                                                            userEpisodeRating < 8 ? 'lightgreen-button-glass' : 
+                                                            userEpisodeRating < 10 ? 'green-button-glass' : 
+                                                            'lightblue-button-glass'
+                                                        } fw-bold shadow-sm transition-all px-3 py-2`}
+                                                        style={{
+                                                            color: 'var(--text-main)',
+                                                        }}
+                                                        onClick={() => setIsRatingModalOpen(true)}  
+                                                    >
+                                                        <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {userEpisodeRating}/10
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        className="lightgray-button-glass fw-bold shadow-sm transition-all px-3 py-2"
+                                                        onClick={() => setIsRatingModalOpen(true)}                                   >
+                                                        <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> Rate Show
+                                                    </button>
+                                                )}
+                                            </>
                                         )}
 
                                         {/* Badge Conteggio Totale Storico */}
@@ -269,7 +300,7 @@ export default function SingleEpisodeDetailedPage() {
                         initialVal={userEpisodeRating}
                         onClose={() => setIsRatingModalOpen(false)}
                         onSubmit={(newRating) => {
-                            rateEpisode(Number(showId), Number(episodeId), newRating);
+                            rateEpisode(Number(showId), Number(episodeId), newRating || 0);
                             setIsRatingModalOpen(false);
                         }}
                     />
