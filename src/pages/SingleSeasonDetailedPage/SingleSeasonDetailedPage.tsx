@@ -205,37 +205,39 @@ export default function SingleSeasonDetailedPage() {
                             <div className="d-flex gap-3 mb-4 align-items-center flex-wrap">
                                 {singleSeasonData?.premiereDate === undefined || new Date(singleSeasonData?.premiereDate) < today && (
                                     <>
-                                        {userSeasonRating ? (
-                                            <button
-                                                className={`${
-                                                    userSeasonRating < 3 ? 'pink-button-glass' : 
-                                                    userSeasonRating < 5 ? 'red-button-glass' : 
-                                                    userSeasonRating < 7 ? 'yellow-button-glass' : 
-                                                    userSeasonRating < 8 ? 'lightgreen-button-glass' : 
-                                                    userSeasonRating < 10 ? 'green-button-glass' : 
-                                                    'lightblue-button-glass'
-                                                } fw-bold shadow-sm transition-all px-3 py-2`}
-                                                style={{
-                                                    color: 'var(--text-main)',
-                                                }}
-                                                onClick={() => setRatingModal({
-                                                    isOpen: true,
-                                                    targetName: `Season ${singleSeasonData?.number}`,
-                                                    currentVal: userSeasonRating
-                                                })}   
-                                            >
-                                                <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {userSeasonRating}/10
-                                            </button>
-                                        ) : (
-                                            <button
-                                                className="lightgray-button-glass fw-bold shadow-sm transition-all px-3 py-2"
-                                                onClick={() => setRatingModal({
-                                                    isOpen: true,
-                                                    targetName: `Season ${singleSeasonData?.number}`,
-                                                    currentVal: userSeasonRating
-                                                })}                                    >
-                                                <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> Rate Show
-                                            </button>
+                                        {isBeingWatched && (
+                                            (userSeasonRating ? (
+                                                <button
+                                                    className={`${
+                                                        userSeasonRating < 3 ? 'pink-button-glass' : 
+                                                        userSeasonRating < 5 ? 'red-button-glass' : 
+                                                        userSeasonRating < 7 ? 'yellow-button-glass' : 
+                                                        userSeasonRating < 8 ? 'lightgreen-button-glass' : 
+                                                        userSeasonRating < 10 ? 'green-button-glass' : 
+                                                        'lightblue-button-glass'
+                                                    } fw-bold shadow-sm transition-all px-3 py-2`}
+                                                    style={{
+                                                        color: 'var(--text-main)',
+                                                    }}
+                                                    onClick={() => setRatingModal({
+                                                        isOpen: true,
+                                                        targetName: `Season ${singleSeasonData?.number}`,
+                                                        currentVal: userSeasonRating
+                                                    })}   
+                                                >
+                                                    <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {userSeasonRating}/10
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    className="lightgray-button-glass fw-bold shadow-sm transition-all px-3 py-2"
+                                                    onClick={() => setRatingModal({
+                                                        isOpen: true,
+                                                        targetName: `Season ${singleSeasonData?.number}`,
+                                                        currentVal: userSeasonRating
+                                                    })}                                    >
+                                                    <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> Rate Season
+                                                </button>
+                                            ))
                                         )}
                                     </>
                                 )}

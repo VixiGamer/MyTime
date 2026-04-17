@@ -21,6 +21,7 @@ interface WatchingContextType {
     rewatchEpisode: (showId: number, episodeId: number) => void;
     startSeasonRewatch: (showId: number, seasonNumber: number) => void;
     deleteShowData: (showId: number) => void;
+    syncShowEpisodes: (showId: number, newEpisodes: AllEpisodes) => void;
 }
 
 export const WatchingContext = createContext<WatchingContextType | undefined>(undefined);

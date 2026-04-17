@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useWatching } from "../../context/Watching/useWatching";
 import type { SingleEpisode } from "../../Types/ShowEpisodes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import RatingModal from "../../components/RatingModal/RatingModal";
 import defaultPoster from "../../images/poster_default.png";
 import defaultEpisodePoster from "../../images/episode_default.png";
@@ -18,7 +19,8 @@ export default function Watching() {
         startRewatch,
         rateShow,
         rateEpisode,
-        rateSeason
+        rateSeason,
+        syncShowEpisodes
     } = useWatching();
 
     const navigate = useNavigate();
@@ -38,6 +40,24 @@ export default function Watching() {
     const activeShows = watchingList.filter(serie =>
         !serie.isArchived && !serie.episodes.every(e => e.sessionWatched)
     ).sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
+
+    //§ --- SINCRONIZZAZIONE AUTOMATICA AL MOUNT ---
+    useEffect(() => {
+        const syncData = async () => {
+            // Sincronizziamo tutte le serie attive e completate (non archiviate)
+            const showsToSync = watchingList.filter(s => !s.isArchived);
+            for (const show of showsToSync) {
+                try {
+                    const response = await axios.get(`https://api.tvmaze.com/shows/${show.showId}/episodes`);
+                    syncShowEpisodes(show.showId, response.data);
+                } catch (error) {
+                    console.error(`Error while syncing show ${show.showId}`, error);
+                }
+            }
+        };
+        syncData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Eseguito solo all'ingresso nella pagina
 
     // Una serie è COMPLETATA se tutti gli episodi della sessione attuale sono stati visti
     const completedShows = watchingList.filter(serie =>
@@ -96,8 +116,8 @@ export default function Watching() {
             <h1 className="mb-4">Watching</h1>
 
             {activeShows.length === 0 && (
-                <div className="alert alert-secondary">
-                    You're not currently watching any series. Search for a series to get started!
+                <div className="card card-body glass-card border-0 shadow-sm" style={{cursor: "pointer"}} onClick={() => navigate(`/search`)}>
+                    You're not currently watching any series. Click here to search for a series to get started!
                 </div>
             )}
 

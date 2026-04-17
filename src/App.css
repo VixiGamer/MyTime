@@ -84,6 +84,10 @@ body {
 
 
 /* --- BUTTONS GLASSMORPHISM --- */
+.back-button-glass {
+    color: var(--text-main);
+}
+
 .blue-button-glass {
     background-color: rgba(13, 110, 253, 0.4);
     border: 1px solid rgb(13, 110, 253);

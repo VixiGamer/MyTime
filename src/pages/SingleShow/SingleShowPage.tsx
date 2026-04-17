@@ -313,7 +313,7 @@ export default function SingleShowPage() {
             <div style={{ backgroundImage: bgGradient }}>
 
                 <div className="p-4 container position-relative">
-                    <button className="glass-card mb-4 px-3 py-2 shadow-sm" onClick={() => navigate(-1)}>
+                    <button className="glass-card mb-4 px-3 py-2 shadow-sm" style={{ color: "var(--text-main)"}} onClick={() => navigate(-1)}>
                         ← Back
                     </button>
 
@@ -345,29 +345,31 @@ export default function SingleShowPage() {
                                 </p>
                                 {/* Action Buttons */}
                                 <div className="d-flex gap-3 mb-4 flex-wrap">
-                                    {Number(isBeingWatched?.userRating) ? (
-                                        <button
-                                            className={`${Number(isBeingWatched?.userRating) < 3 ? 'pink-button-glass' :
-                                                Number(isBeingWatched?.userRating) < 5 ? 'red-button-glass' :
-                                                    Number(isBeingWatched?.userRating) < 7 ? 'yellow-button-glass' :
-                                                        Number(isBeingWatched?.userRating) < 8 ? 'lightgreen-button-glass' :
-                                                            Number(isBeingWatched?.userRating) < 10 ? 'green-button-glass' :
-                                                                'lightblue-button-glass'
-                                                } fw-bold shadow-sm transition-all px-3 py-2`}
-                                            style={{
-                                                color: 'var(--text-main)',
-                                            }}
-                                            onClick={() => setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: isBeingWatched?.showName || singleShowData?.name || "", currentVal: isBeingWatched?.userRating || 0 })}
-                                        >
-                                            <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {isBeingWatched?.userRating}/10
-                                        </button>
-                                    ) : (
-                                        <button
-                                            className="lightgray-button-glass fw-bold shadow-sm transition-all px-3 py-2"
-                                            onClick={() => setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: isBeingWatched?.showName || singleShowData?.name || "", currentVal: isBeingWatched?.userRating || 0 })}
-                                        >
-                                            <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> Rate Show
-                                        </button>
+                                    {isBeingWatched && (
+                                        Number(isBeingWatched.userRating) ? (
+                                            <button
+                                                className={`${Number(isBeingWatched.userRating) < 3 ? 'pink-button-glass' :
+                                                    Number(isBeingWatched.userRating) < 5 ? 'red-button-glass' :
+                                                        Number(isBeingWatched.userRating) < 7 ? 'yellow-button-glass' :
+                                                            Number(isBeingWatched.userRating) < 8 ? 'lightgreen-button-glass' :
+                                                                Number(isBeingWatched.userRating) < 10 ? 'green-button-glass' :
+                                                                    'lightblue-button-glass'
+                                                    } fw-bold shadow-sm transition-all px-3 py-2`}
+                                                style={{
+                                                    color: 'var(--text-main)',
+                                                }}
+                                                onClick={() => setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: isBeingWatched.showName || singleShowData?.name || "", currentVal: isBeingWatched.userRating || 0 })}
+                                            >
+                                                <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {isBeingWatched.userRating}/10
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="lightgray-button-glass fw-bold shadow-sm transition-all px-3 py-2"
+                                                onClick={() => setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: isBeingWatched.showName || singleShowData?.name || "", currentVal: 0 })}
+                                            >
+                                                <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> Rate Show
+                                            </button>
+                                        )
                                     )}
 
                                     {totalShowWatchedCount > 0 && (
@@ -648,8 +650,9 @@ export default function SingleShowPage() {
                                 const watchedStatus = epProg?.sessionWatched;
                                 const userRating = epProg?.userRating;
                                 const totalViews = Number(epProg?.sessionCount || 0);
+
                                 const today = new Date();
-                                const episodeAirDate = new Date(epProg?.episodeData.airdate || "");
+                                const episodeAirDate = new Date(episode.airdate || "");
                                 // Lo faccio cosi oggi non risulta passato solo perche è un orario diverso
                                 today.setHours(0, 0, 0, 0)
                                 episodeAirDate.setHours(0, 0, 0, 0)

@@ -181,24 +181,40 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
             if (item.showId === showId) {
                 const isAlreadyComplete = item.seasons?.find(s => s.seasonNumber === seasonNumber)?.sessionCount === 1;
 
+                const updatedEpisodes = item.episodes.map(ep => {
+                    if (ep.episodeData.season === seasonNumber) {
+                        return {
+                            ...ep,
+                            sessionWatched: true,
+                            sessionCount: 1,
+                            allTimeCount: !ep.sessionWatched ? (ep.allTimeCount || 0) + 1 : ep.allTimeCount
+                        };
+                    }
+                    return ep;
+                });
+
+                const updatedSeasons = item.seasons?.find(s => s.seasonNumber === seasonNumber)
+                    ? item.seasons.map(s => s.seasonNumber === seasonNumber
+                        ? { ...s, sessionCount: 1, allTimeCount: isAlreadyComplete ? s.allTimeCount : (s.allTimeCount || 0) + 1 } : s)
+                    : [...(item.seasons || []), { seasonNumber, sessionCount: 1, allTimeCount: 1 }];
+
+                // CONTROLLO COMPLETAMENTO SERIE
+                const isShowComplete = updatedEpisodes.every(e => e.sessionWatched);
+                let newShowSessionCount = item.sessionCount || 0;
+                let newShowAllTimeCount = item.allTimeCount || 0;
+
+                if (isShowComplete && item.sessionCount === 0) {
+                    newShowSessionCount = 1;
+                    newShowAllTimeCount += 1;
+                }
+
                 return {
                     ...item,
                     lastUpdated: new Date(),
-                    episodes: item.episodes.map(ep => {
-                        if (ep.episodeData.season === seasonNumber) {
-                            return {
-                                ...ep,
-                                sessionWatched: true,
-                                sessionCount: 1,
-                                allTimeCount: !ep.sessionWatched ? (ep.allTimeCount || 0) + 1 : ep.allTimeCount
-                            };
-                        }
-                        return ep;
-                    }),
-                    seasons: item.seasons?.find(s => s.seasonNumber === seasonNumber)
-                        ? item.seasons.map(s => s.seasonNumber === seasonNumber
-                            ? { ...s, sessionCount: 1, allTimeCount: isAlreadyComplete ? s.allTimeCount : (s.allTimeCount || 0) + 1 } : s)
-                        : [...(item.seasons || []), { seasonNumber, sessionCount: 1, allTimeCount: 1 }]
+                    episodes: updatedEpisodes,
+                    seasons: updatedSeasons,
+                    sessionCount: newShowSessionCount,
+                    allTimeCount: newShowAllTimeCount
                 };
             }
             return item;
@@ -236,25 +252,37 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
     const unmarkSeasonAsWatched = (showId: number, seasonNumber: number) => {
         setWatchingList((prev) => prev.map((item) => {
             if (item.showId === showId) {
+                const updatedEpisodes = item.episodes.map(ep => {
+                    if (ep.episodeData.season === seasonNumber) {
+                        return {
+                            ...ep,
+                            sessionWatched: false,
+                            sessionCount: 0,
+                            allTimeCount: Math.max(0, (ep.allTimeCount || 0) - 1)
+                        };
+                    }
+                    return ep;
+                });
+
+                const updatedSeasons = item.seasons?.map(s =>
+                    s.seasonNumber === seasonNumber
+                        ? { ...s, sessionCount: 0, allTimeCount: Math.max(0, (s.allTimeCount || 0) - 1) }
+                        : s
+                ) || [];
+
+                const isShowComplete = updatedEpisodes.every(e => e.sessionWatched);
+                let newShowSessionCount = item.sessionCount || 0;
+
+                if (!isShowComplete) {
+                    newShowSessionCount = 0;
+                }
+
                 return {
                     ...item,
                     lastUpdated: new Date(),
-                    episodes: item.episodes.map(ep => {
-                        if (ep.episodeData.season === seasonNumber) {
-                            return {
-                                ...ep,
-                                sessionWatched: false,
-                                sessionCount: 0,
-                                allTimeCount: Math.max(0, (ep.allTimeCount || 0) - 1)
-                            };
-                        }
-                        return ep;
-                    }),
-                    seasons: item.seasons?.map(s =>
-                        s.seasonNumber === seasonNumber
-                            ? { ...s, sessionCount: 0, allTimeCount: Math.max(0, (s.allTimeCount || 0) - 1) }
-                            : s
-                    ) || []
+                    episodes: updatedEpisodes,
+                    seasons: updatedSeasons,
+                    sessionCount: newShowSessionCount
                 };
             }
             return item;
@@ -413,6 +441,36 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    // Sincronizza gli episodi di una serie con i dati aggiornati dall'API (es. nuove immagini, nuovi episodi)
+    const syncShowEpisodes = (showId: number, newEpisodes: AllEpisodes) => {
+        setWatchingList((prev) => prev.map((item) => {
+            if (item.showId === showId) {
+                // Troviamo eventuali nuovi episodi e aggiorniamo quelli vecchi
+                const mergedEpisodes = newEpisodes.map(newEp => {
+                    const existingEp = item.episodes.find(e => e.episodeId === newEp.id);
+                    if (existingEp) {
+                        return { ...existingEp, episodeData: newEp };
+                    } else {
+                        // Nuovo episodio annunciato/aggiunto da TVMaze!
+                        return {
+                            episodeId: newEp.id,
+                            episodeData: newEp,
+                            sessionWatched: false,
+                            sessionCount: 0,
+                            allTimeCount: 0
+                        };
+                    }
+                });
+
+                return {
+                    ...item,
+                    episodes: mergedEpisodes
+                };
+            }
+            return item;
+        }));
+    };
+
     return (
         <WatchingContext.Provider value={{
             watchingList,
@@ -430,7 +488,8 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
             startRewatch,
             rewatchEpisode,
             startSeasonRewatch,
-            deleteShowData
+            deleteShowData,
+            syncShowEpisodes
         }}>
             {children}
         </WatchingContext.Provider>
