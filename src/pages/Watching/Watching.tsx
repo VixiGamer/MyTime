@@ -116,7 +116,7 @@ export default function Watching() {
             <h1 className="mb-4">Watching</h1>
 
             {activeShows.length === 0 && (
-                <div className="card card-body glass-card border-0 shadow-sm" style={{cursor: "pointer"}} onClick={() => navigate(`/search`)}>
+                <div className="card text-muted card-body glass-card border-0 shadow-sm" style={{cursor: "pointer"}} onClick={() => navigate(`/search`)}>
                     You're not currently watching any series. Click here to search for a series to get started!
                 </div>
             )}
@@ -186,7 +186,7 @@ export default function Watching() {
                                 <div className="progress mb-2" style={{ maxWidth: "30rem", height: "10px" }}>
                                     <div className="progress-bar bg-success" style={{ width: `${percentage}%` }}></div>
                                 </div>
-                                <small className="text-muted mb-3">{percentage}% - {watchedCount} of {totalCount} episodes seen</small>
+                                <small className="text-muted mb-3">{percentage}% - {watchedCount}/{totalCount}</small>
 
                                 {nextEpisode ? (
                                     <div className="glass-card p-2" style={{ maxWidth: "35rem" }}>
@@ -231,7 +231,9 @@ export default function Watching() {
                                 </div>
                             </div>
                         ) : (
-                            <p className="text-muted text-center italic">You haven't any archived shows.</p>
+                            <div className="text-center py-3">
+                                <p className="text-muted text-center italic">You haven't any archived shows.</p>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -293,7 +295,7 @@ export default function Watching() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="text-center py-4">
+                            <div className="text-center py-3">
                                 <p className="text-muted mb-0 italic">You haven't completed any shows yet.</p>
                             </div>
                         )}

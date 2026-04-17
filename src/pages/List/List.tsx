@@ -29,7 +29,7 @@ export default function List() {
 
             {/* Input Section - Glassmorphism Style */}
             <div className="mb-5">
-                <div className="input-group">
+                <div className="input-group gap-4">
                     <input
                         type="text"
                         value={listName}

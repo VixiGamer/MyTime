@@ -154,7 +154,7 @@ export default function SingleEpisodeDetailedPage() {
     return (
         <div style={{ backgroundImage: bgGradient }} className="min-vh-100 w-100">
             <div className="container py-4">
-                <button className="glass-card mb-4 px-3 py-2 shadow-sm" onClick={() => navigate(-1)}>
+                <button className="glass-card mb-4 px-3 py-2 shadow-sm" style={{ color: "var(--text-main)"}} onClick={() => navigate(-1)}>
                     ← Back
                 </button>
 

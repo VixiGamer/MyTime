@@ -85,7 +85,10 @@ export default function ShowImagesPage() {
 
     return(
         <div className="p-4">
-            <button className="btn btn-outline-dark mb-3" onClick={() => navigate(-1)}>Back</button>
+            <button className="glass-card mb-4 px-3 py-2 shadow-sm" style={{ color: "var(--text-main)"}} onClick={() => navigate(-1)}>
+                ← Back
+            </button>
+            
             <ShowImagesGallery showImages={showImages} />
         </div>
     )

@@ -440,7 +440,7 @@ export default function SingleShowPage() {
                                     ) : (
                                         <div className="dropdown">
                                             <button className="lightblue-button-glass dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                                {isBeingWatched.isArchived ? "Archived" : "Currently Watching"}
+                                                {isBeingWatched.isArchived ?  "Archived" : "Currently Watching"}
                                             </button>
                                             <ul className="dropdown-menu glass-card">
                                                 <li><button className="dropdown-item" onClick={() => navigate(`/watching`)}>Go to Watching</button></li>
@@ -451,16 +451,16 @@ export default function SingleShowPage() {
                                                 </li>
                                                 <li>
                                                     <button
-                                                        className="dropdown-item text-success"
+                                                        className="dropdown-item"
                                                         onClick={() => markShowAsWatched(Number(showId))}
                                                     >
-                                                        ✓ Mark Entire Show as Watched
+                                                        Mark Entire Show as Watched
                                                     </button>
                                                 </li>
                                                 <li>
                                                     {isShowFullyWatched && (
                                                         <button
-                                                            className="dropdown-item text-primary"
+                                                            className="dropdown-item"
                                                             onClick={() => {
                                                                 const confirmRewatch = window.confirm(
                                                                     `Start a new Rewatch for "${singleShowData?.name}"? Your current progress will be reset but your all time history will remain saved.`
@@ -470,7 +470,7 @@ export default function SingleShowPage() {
                                                                 }
                                                             }}
                                                         >
-                                                            🔄 Start Full Rewatch
+                                                            <i className="bi bi-arrow-clockwise" /> Start Full Rewatch
                                                         </button>
                                                     )}
                                                 </li>
@@ -480,7 +480,7 @@ export default function SingleShowPage() {
                                                         className="dropdown-item py-2 text-danger fw-bold d-flex align-items-center gap-2"
                                                         onClick={() => deleteShowData(Number(showId))}
                                                     >
-                                                        🗑️ Total Data Reset
+                                                        Total Data Reset
                                                     </button>
                                                 </li>
                                             </ul>
