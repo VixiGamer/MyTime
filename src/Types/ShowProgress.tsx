@@ -7,12 +7,12 @@ export interface ShowProgress {
     showImage?: string;
     lastUpdated: Date;
     isArchived: boolean;
-    userRating?: number; 
+    userRating?: number;
     sessionCount: number;      // Quante volte completata in questo giro (0 o 1)
     allTimeCount: number;      // Quante volte completata in totale nella storia
     episodes: EpisodeWatched[];
-    seasons: SeasonProgress[]; 
-    watchDates?: string[];          //Aggiunto io
+    seasons: SeasonProgress[];
+    watchDates?: [string, string][]; // Storico visioni: [[data, ora], [data, ora]]
 }
 
 // Voto e progresso della singola Stagione
@@ -21,6 +21,7 @@ export interface SeasonProgress {
     userRating?: number;
     sessionCount: number;      // 0 se non finita in questo giro, 1 se finita
     allTimeCount: number;      // Volte totali completata
+    watchDates?: [string, string][];
 }
 
 // Voto e progresso del singolo Episodio
@@ -31,4 +32,5 @@ export interface EpisodeWatched {
     sessionWatched: boolean;   // Sostituisce 'status': vero/falso per il giro attuale
     sessionCount: number;      // Di solito 0 o 1
     allTimeCount: number;      // Volte totali visto
+    watchDates?: [string, string][];
 }

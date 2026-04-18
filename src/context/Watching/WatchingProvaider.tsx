@@ -6,6 +6,7 @@ import { WatchingContext } from "./WatchingContext";
 
 
 export const WatchingProvider = ({ children }: { children: ReactNode }) => {
+
     // 1. Caricamento iniziale dal LocalStorage
     const [watchingList, setWatchingList] = useState<ShowProgress[]>(() => {
         const saved = localStorage.getItem("watching_progress");
@@ -47,9 +48,15 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
     };
 
     // Toggle Episodio (Incremento corretto)
-    const toggleEpisodeStatus = (showId: number, episodeId: number) => {
+    const toggleEpisodeStatus = (showId: number, episodeId: number, customDate?: string, customTime?: string) => {
         setWatchingList((prev) => prev.map((item) => {
             if (item.showId === showId) {
+                // 0. Creiamo la data (usa quella passata, altrimenti quella di adesso)
+                const now = new Date();
+                const dateToSave = customDate || now.toLocaleDateString();
+                const timeToSave = customTime || now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const currentDateTime: [string, string] = [dateToSave, timeToSave];
+
                 // 1. Aggiorna l'episodio specifico
                 const updatedEpisodes = item.episodes.map((ep) => {
                     if (ep.episodeId === episodeId) {
@@ -60,7 +67,12 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
                             sessionCount: isNowWatched ? 1 : 0,
                             allTimeCount: isNowWatched
                                 ? (Number(ep.allTimeCount || 0) + 1)
-                                : Math.max(0, Number(ep.allTimeCount || 0) - 1)
+                                : Math.max(0, Number(ep.allTimeCount || 0) - 1),
+
+                            // Aggiungo o tolgo la data dallo storico dell'episodio
+                            watchDates: isNowWatched
+                                ? [...(ep.watchDates || []), currentDateTime]
+                                : (ep.watchDates || []).slice(0, -1)
                         };
                     }
                     return ep;
@@ -81,25 +93,41 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
                     if (!seasonObj || seasonObj.sessionCount === 0) {
                         updatedSeasons = seasonObj
                             ? updatedSeasons.map(s => s.seasonNumber === seasonNumber
-                                ? { ...s, sessionCount: 1, allTimeCount: (s.allTimeCount || 0) + 1 } : s)
-                            : [...updatedSeasons, { seasonNumber, sessionCount: 1, allTimeCount: 1 }];
+                                ? {
+                                    ...s,
+                                    sessionCount: 1,
+                                    allTimeCount: (s.allTimeCount || 0) + 1,
+                                    watchDates: [...(s.watchDates || []), currentDateTime]
+                                } : s)
+                            : [...updatedSeasons, {
+                                seasonNumber,
+                                sessionCount: 1,
+                                allTimeCount: 1,
+                                watchDates: [currentDateTime]
+                            }];
                     }
                 } else if (!isSeasonComplete && seasonNumber !== undefined) {
-                    // Se togliamo la spunta a un episodio, la stagione non è più "completata" in questa sessione
-                    updatedSeasons = updatedSeasons.map(s => s.seasonNumber === seasonNumber
-                        ? { ...s, sessionCount: 0 } : s);
+                    // Se la stagione ERA completata e ora togliamo la spunta, eliminiamo l'ultima data dalla stagione
+                    const seasonObj = updatedSeasons.find(s => s.seasonNumber === seasonNumber);
+                    if (seasonObj && seasonObj.sessionCount === 1) {
+                        updatedSeasons = updatedSeasons.map(s => s.seasonNumber === seasonNumber
+                            ? { ...s, sessionCount: 0, watchDates: (s.watchDates || []).slice(0, -1) } : s);
+                    }
                 }
 
                 // 3. CONTROLLO COMPLETAMENTO SERIE
                 const isShowComplete = updatedEpisodes.every(e => e.sessionWatched);
                 let newShowSessionCount = item.sessionCount || 0;
                 let newShowAllTimeCount = item.allTimeCount || 0;
+                let newShowWatchDates = item.watchDates || [];
 
                 if (isShowComplete && item.sessionCount === 0) {
                     newShowSessionCount = 1;
                     newShowAllTimeCount += 1;
-                } else if (!isShowComplete) {
+                    newShowWatchDates = [...newShowWatchDates, currentDateTime];
+                } else if (!isShowComplete && item.sessionCount === 1) {
                     newShowSessionCount = 0;
+                    newShowWatchDates = newShowWatchDates.slice(0, -1);
                 }
 
                 return {
@@ -108,7 +136,8 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
                     episodes: updatedEpisodes,
                     seasons: updatedSeasons,
                     sessionCount: newShowSessionCount,
-                    allTimeCount: newShowAllTimeCount
+                    allTimeCount: newShowAllTimeCount,
+                    watchDates: newShowWatchDates
                 };
             }
             return item;
@@ -130,9 +159,14 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
     // --- FUNZIONI DI AZIONE MASSIVA ---
 
     // Segna tutta la serie come vista
-    const markShowAsWatched = (showId: number) => {
+    const markShowAsWatched = (showId: number, customDate?: string, customTime?: string) => {
         setWatchingList((prev) => prev.map((item) => {
             if (item.showId === showId) {
+                const now = new Date();
+                const dateToSave = customDate || now.toLocaleDateString();
+                const timeToSave = customTime || now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const currentDateTime: [string, string] = [dateToSave, timeToSave];
+
                 //^ Identifichiamo tutte le stagioni uniche presenti negli episodi
                 const uniqueSeasonNumbers = Array.from(
                     new Set(item.episodes.map(ep => ep.episodeData.season))
@@ -151,21 +185,28 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
                         sessionCount: 1,
                         allTimeCount: wasAlreadyComplete
                             ? (existingSeason?.allTimeCount || 0)
-                            : (existingSeason?.allTimeCount || 0) + 1
+                            : (existingSeason?.allTimeCount || 0) + 1,
+                        watchDates: wasAlreadyComplete
+                            ? existingSeason?.watchDates
+                            : [...(existingSeason?.watchDates || []), currentDateTime]
                     };
                 });
+
+                const wasShowAlreadyComplete = item.sessionCount === 1;
 
                 return {
                     ...item,
                     lastUpdated: new Date(),
                     sessionCount: 1,
-                    allTimeCount: (item.allTimeCount || 0) + 1,
+                    allTimeCount: wasShowAlreadyComplete ? item.allTimeCount : (item.allTimeCount || 0) + 1,
+                    watchDates: wasShowAlreadyComplete ? item.watchDates : [...(item.watchDates || []), currentDateTime],
 
                     episodes: item.episodes.map(ep => ({        //^ Aggiorniamo tutti gli episodi
                         ...ep,
                         sessionWatched: true,
                         sessionCount: 1,
-                        allTimeCount: !ep.sessionWatched ? (ep.allTimeCount || 0) + 1 : ep.allTimeCount
+                        allTimeCount: !ep.sessionWatched ? (ep.allTimeCount || 0) + 1 : ep.allTimeCount,
+                        watchDates: !ep.sessionWatched ? [...(ep.watchDates || []), currentDateTime] : ep.watchDates
                     })),
 
                     seasons: updatedSeasons
@@ -176,9 +217,14 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
     };
 
     // Segna l'intera stagione come vista (incrementando i contatori degli episodi)
-    const markSeasonAsWatched = (showId: number, seasonNumber: number) => {
+    const markSeasonAsWatched = (showId: number, seasonNumber: number, customDate?: string, customTime?: string) => {
         setWatchingList((prev) => prev.map((item) => {
             if (item.showId === showId) {
+                const now = new Date();
+                const dateToSave = customDate || now.toLocaleDateString();
+                const timeToSave = customTime || now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const currentDateTime: [string, string] = [dateToSave, timeToSave];
+
                 const isAlreadyComplete = item.seasons?.find(s => s.seasonNumber === seasonNumber)?.sessionCount === 1;
 
                 const updatedEpisodes = item.episodes.map(ep => {
@@ -187,7 +233,8 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
                             ...ep,
                             sessionWatched: true,
                             sessionCount: 1,
-                            allTimeCount: !ep.sessionWatched ? (ep.allTimeCount || 0) + 1 : ep.allTimeCount
+                            allTimeCount: !ep.sessionWatched ? (ep.allTimeCount || 0) + 1 : ep.allTimeCount,
+                            watchDates: !ep.sessionWatched ? [...(ep.watchDates || []), currentDateTime] : ep.watchDates
                         };
                     }
                     return ep;
@@ -195,17 +242,24 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
 
                 const updatedSeasons = item.seasons?.find(s => s.seasonNumber === seasonNumber)
                     ? item.seasons.map(s => s.seasonNumber === seasonNumber
-                        ? { ...s, sessionCount: 1, allTimeCount: isAlreadyComplete ? s.allTimeCount : (s.allTimeCount || 0) + 1 } : s)
-                    : [...(item.seasons || []), { seasonNumber, sessionCount: 1, allTimeCount: 1 }];
+                        ? {
+                            ...s,
+                            sessionCount: 1,
+                            allTimeCount: isAlreadyComplete ? s.allTimeCount : (s.allTimeCount || 0) + 1,
+                            watchDates: isAlreadyComplete ? s.watchDates : [...(s.watchDates || []), currentDateTime]
+                        } : s)
+                    : [...(item.seasons || []), { seasonNumber, sessionCount: 1, allTimeCount: 1, watchDates: [currentDateTime] }];
 
                 // CONTROLLO COMPLETAMENTO SERIE
                 const isShowComplete = updatedEpisodes.every(e => e.sessionWatched);
                 let newShowSessionCount = item.sessionCount || 0;
                 let newShowAllTimeCount = item.allTimeCount || 0;
+                let newShowWatchDates = item.watchDates || [];
 
                 if (isShowComplete && item.sessionCount === 0) {
                     newShowSessionCount = 1;
                     newShowAllTimeCount += 1;
+                    newShowWatchDates = [...newShowWatchDates, currentDateTime];
                 }
 
                 return {
@@ -214,7 +268,8 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
                     episodes: updatedEpisodes,
                     seasons: updatedSeasons,
                     sessionCount: newShowSessionCount,
-                    allTimeCount: newShowAllTimeCount
+                    allTimeCount: newShowAllTimeCount,
+                    watchDates: newShowWatchDates
                 };
             }
             return item;
@@ -231,17 +286,20 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
                     lastUpdated: new Date(),
                     sessionCount: 0,
                     // Decrementiamo allTimeCount solo se è maggiore di 0
-                    allTimeCount: Math.max(0, (item.allTimeCount || 0) - 1),
+                    allTimeCount: item.sessionCount === 1 ? Math.max(0, (item.allTimeCount || 0) - 1) : item.allTimeCount,
+                    watchDates: item.sessionCount === 1 ? (item.watchDates || []).slice(0, -1) : item.watchDates,
                     episodes: item.episodes.map(ep => ({
                         ...ep,
                         sessionWatched: false,
                         sessionCount: 0,
-                        allTimeCount: Math.max(0, (ep.allTimeCount || 0) - 1)
+                        allTimeCount: ep.sessionWatched ? Math.max(0, (ep.allTimeCount || 0) - 1) : ep.allTimeCount,
+                        watchDates: ep.sessionWatched ? (ep.watchDates || []).slice(0, -1) : ep.watchDates
                     })),
                     seasons: item.seasons?.map(s => ({
                         ...s,
                         sessionCount: 0,
-                        allTimeCount: Math.max(0, (s.allTimeCount || 0) - 1)
+                        allTimeCount: s.sessionCount === 1 ? Math.max(0, (s.allTimeCount || 0) - 1) : s.allTimeCount,
+                        watchDates: s.sessionCount === 1 ? (s.watchDates || []).slice(0, -1) : s.watchDates
                     })) || []
                 };
             }
@@ -258,7 +316,8 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
                             ...ep,
                             sessionWatched: false,
                             sessionCount: 0,
-                            allTimeCount: Math.max(0, (ep.allTimeCount || 0) - 1)
+                            allTimeCount: ep.sessionWatched ? Math.max(0, (ep.allTimeCount || 0) - 1) : ep.allTimeCount,
+                            watchDates: ep.sessionWatched ? (ep.watchDates || []).slice(0, -1) : ep.watchDates
                         };
                     }
                     return ep;
@@ -266,15 +325,23 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
 
                 const updatedSeasons = item.seasons?.map(s =>
                     s.seasonNumber === seasonNumber
-                        ? { ...s, sessionCount: 0, allTimeCount: Math.max(0, (s.allTimeCount || 0) - 1) }
+                        ? {
+                            ...s,
+                            sessionCount: 0,
+                            allTimeCount: s.sessionCount === 1 ? Math.max(0, (s.allTimeCount || 0) - 1) : s.allTimeCount,
+                            watchDates: s.sessionCount === 1 ? (s.watchDates || []).slice(0, -1) : s.watchDates
+                        }
                         : s
                 ) || [];
 
                 const isShowComplete = updatedEpisodes.every(e => e.sessionWatched);
                 let newShowSessionCount = item.sessionCount || 0;
+                let newShowWatchDates = item.watchDates || [];
 
-                if (!isShowComplete) {
+                // Se la serie ERA completa e non lo è più, togli l'ultimo completamento
+                if (!isShowComplete && item.sessionCount === 1) {
                     newShowSessionCount = 0;
+                    newShowWatchDates = newShowWatchDates.slice(0, -1);
                 }
 
                 return {
@@ -282,7 +349,8 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
                     lastUpdated: new Date(),
                     episodes: updatedEpisodes,
                     seasons: updatedSeasons,
-                    sessionCount: newShowSessionCount
+                    sessionCount: newShowSessionCount,
+                    watchDates: newShowWatchDates
                 };
             }
             return item;
@@ -315,9 +383,14 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
     };
 
     // Rivedere un episodio e aumenta il 'allTimeCount' di 1
-    const rewatchEpisode = (showId: number, episodeId: number) => {
+    const rewatchEpisode = (showId: number, episodeId: number, customDate?: string, customTime?: string) => {
         setWatchingList(prev => prev.map(item => {
             if (item.showId === showId) {
+                const now = new Date();
+                const dateToSave = customDate || now.toLocaleDateString();
+                const timeToSave = customTime || now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const currentDateTime: [string, string] = [dateToSave, timeToSave];
+
                 return {
                     ...item,
                     lastUpdated: new Date(),
@@ -326,7 +399,8 @@ export const WatchingProvider = ({ children }: { children: ReactNode }) => {
                             ? {
                                 ...ep,
                                 sessionWatched: true, // Se lo stai rivedendo, è ovviamente visto
-                                allTimeCount: (ep.allTimeCount || 0) + 1
+                                allTimeCount: (ep.allTimeCount || 0) + 1,
+                                watchDates: [...(ep.watchDates || []), currentDateTime]
                             }
                             : ep
                     )

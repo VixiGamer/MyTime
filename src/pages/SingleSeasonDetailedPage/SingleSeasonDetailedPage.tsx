@@ -241,6 +241,22 @@ export default function SingleSeasonDetailedPage() {
                                         )}
                                     </>
                                 )}
+  
+                                {totalSeasonViews > 0 && (
+                                    <div className="dropdown flex-shrink-0">
+                                        <button className="gray-button-glass d-flex align-items-center px-3" type="button" data-bs-toggle="dropdown">
+                                            <i className="bi bi-eye-fill me-1" /> {totalSeasonViews}
+                                        </button>
+                                        
+                                        <ul className="dropdown-menu dropdown-menu glass-card shadow">
+                                            {seasonProg?.watchDates?.map((date, index) => (
+                                                <li key={index}>
+                                                    <span className="dropdown-item">{index + 1}. {date[0]} -  {date[1]}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div> 
+                                )}
 
                                 {singleSeasonData?.episodeOrder && (
                                     <span className="badge rounded-pill gray-glass-card p-2 shadow-sm">
@@ -248,12 +264,6 @@ export default function SingleSeasonDetailedPage() {
                                     </span>
                                 )}
                                 
-
-                                {totalSeasonViews > 0 && (
-                                    <span className="badge rounded-pill gray-glass-card p-2 shadow-sm">
-                                        Total Views: {totalSeasonViews}
-                                    </span>
-                                )}
                             </div>
 
                             {/* Info Grid */}

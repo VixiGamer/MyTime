@@ -1,3 +1,5 @@
+// Questi sono i dati che ci restituisce l'API TVMaze
+
 export type AllEpisodes = SingleEpisode[]
 
 export interface SingleEpisode {
@@ -14,7 +16,6 @@ export interface SingleEpisode {
   rating: Rating
   image: Image
   summary: string
-  watchDates?: string[];    //Agiunto io
   _links: Links
 }
 
