@@ -1,0 +1,59 @@
+/*^ Immaggine del episoio */
+/* Mobile */
+.episode-img-responsive {
+  width: 8rem;
+  height: 6rem;
+}
+
+/* Tablet e desktop */
+@media (min-width: 768px) {
+  .episode-img-responsive {
+    width: 17rem;
+    height: 10rem;
+  }
+}
+
+
+/*^ Bottone per segnare l'episodio come visto */
+/* Mobile */
+.button-mark-responsive {
+  width: 2rem;
+  height: 2rem;
+}
+
+/* Tablet e desktop */
+@media (min-width: 768px) {
+  .button-mark-responsive {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+}
+
+
+/*^ Immaggine del episoio */
+/* Mobile */
+.font-details-responsive {
+  font-size: 0.75rem;
+}
+
+/* Tablet e desktop */
+@media (min-width: 768px) {
+  .font-details-responsive {
+    font-size: 1rem;
+  }
+}
+
+/*^ Più info sulla card del episodio */
+/* Mobile */
+.moreinfo-button-responsive {
+  font-size: 0.8rem;
+  margin-top: -0.85rem;
+}
+
+/* Tablet e desktop */
+@media (min-width: 768px) {
+  .moreinfo-button-responsive {
+    font-size: 1.15rem;
+  }
+}

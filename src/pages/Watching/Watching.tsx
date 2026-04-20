@@ -6,6 +6,7 @@ import axios from "axios";
 import RatingModal from "../../components/RatingModal/RatingModal";
 import defaultPoster from "../../images/poster_default.png";
 import defaultEpisodePoster from "../../images/episode_default.png";
+import "./Watching.css"
 
 export default function Watching() {
     const [episodeImgLoaded, setEpisodeImgLoaded] = useState(false);
@@ -14,8 +15,8 @@ export default function Watching() {
         watchingList,
         toggleEpisodeStatus,
         archiveShow,
-        deleteShowData,
-        markShowAsWatched,
+        // deleteShowData,
+        // markShowAsWatched,
         startRewatch,
         rateShow,
         rateEpisode,
@@ -56,7 +57,7 @@ export default function Watching() {
             }
         };
         syncData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Eseguito solo all'ingresso nella pagina
 
     // Una serie è COMPLETATA se tutti gli episodi della sessione attuale sono stati visti
@@ -81,18 +82,18 @@ export default function Watching() {
         });
     };
 
-    const handleMarkShowAsWatched = (showId: number, showName: string) => {
-        markShowAsWatched(showId);
+    // const handleMarkShowAsWatched = (showId: number, showName: string) => {
+    //     markShowAsWatched(showId);
 
-        setRatingModal({
-            isOpen: true,
-            showId: showId,
-            type: 'show',
-            targetId: showId,
-            targetName: showName,
-            currentVal: 0
-        });
-    };
+    //     setRatingModal({
+    //         isOpen: true,
+    //         showId: showId,
+    //         type: 'show',
+    //         targetId: showId,
+    //         targetName: showName,
+    //         currentVal: 0
+    //     });
+    // };
 
     const today = new Date();
     today.setHours(0, 0, 0, 0)
@@ -112,17 +113,19 @@ export default function Watching() {
 
 
     return (
-        <div className="p-4">
-            <h1 className="mb-4">Watching</h1>
+        <div className="p-4 container">
+            <header className="mb-4 text-center text-md-start">
+                <h1 className="fw-bolder display-5">Next to watch</h1>
+            </header>
 
             {activeShows.length === 0 && (
-                <div className="card text-muted card-body glass-card border-0 shadow-sm" style={{cursor: "pointer"}} onClick={() => navigate(`/search`)}>
+                <div className="card text-muted card-body glass-card border-0 shadow-sm" style={{ cursor: "pointer" }} onClick={() => navigate(`/search`)}>
                     You're not currently watching any series. Click here to search for a series to get started!
                 </div>
             )}
 
-            <div className="d-flex flex-column gap-3">
-                {activeShows.map((serie) => {
+            <div className="row g-3">
+                {activeShows.map((serie, index) => {
                     // Logica basata su sessionWatched
                     const watchedCount = serie.episodes.filter(e => e.sessionWatched).length;
                     const totalCount = serie.episodes.length;
@@ -150,60 +153,79 @@ export default function Watching() {
                     const imgOriginalMedium = displayEpisode?.episodeData.image?.original || displayEpisode?.episodeData.image?.medium;
 
                     return (
-                        <div key={serie.showId} className="glass-card card p-3 d-flex flex-row position-relative shadow-sm" style={{ minHeight: "11rem", borderRadius: "10px" }}>
-
-                            <div className="dropdown position-absolute top-0 end-0 m-3">
-                                <button className="gray-button-glass dropdown-toggle border" type="button" data-bs-toggle="dropdown">
-                                    <i className="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <ul className="dropdown-menu glass-card dropdown-menu-end shadow">
-                                    <li><button className="dropdown-item" onClick={() => navigate(`/show/${serie.showId}`)}>Show Details</button></li>
-                                    <li><button className="dropdown-item" onClick={() => handleMarkShowAsWatched(serie.showId, serie.showName)}>Mark entire show as watched</button></li>
-                                    <li><hr className="dropdown-divider" /></li>
-                                    <li><button className="dropdown-item" onClick={() => archiveShow(serie.showId)}>Archive (Hide below)</button></li>
-                                    <li><button className="dropdown-item text-danger fw-bold" onClick={() => deleteShowData(serie.showId)}>Delete ALL data & history</button></li>
-                                </ul>
-                            </div>
-
-                            <div style={{ cursor: "pointer", width: "300px", flexShrink: 0, marginRight: "1.5rem" }} onClick={() => navigate(`/show/${serie.showId}`)}>
-                                {!episodeImgLoaded && (
-                                    <div className="d-flex align-items-center justify-content-center bg-secondary text-light" style={{ borderRadius: "5px", height: "100%", width: "100%" }}>
-                                        <div className="spinner-border text-light" role="status"></div>
-                                    </div>
-                                )}
-                                <img
-                                    src={imgOriginalMedium || defaultEpisodePoster}
-                                    alt={displayEpisode?.episodeData?.name}
-                                    onLoad={() => setEpisodeImgLoaded(true)}
-                                    style={{ borderRadius: "15px", objectFit: "cover", height: "100%", width: "100%", display: episodeImgLoaded ? "block" : "none" }}
-                                />
-                            </div>
-
-                            <div className="flex-grow-1 d-flex flex-column justify-content-center pe-5">
-                                <h4 className="mb-1" style={{ cursor: "pointer" }} onClick={() => navigate(`/show/${serie.showId}`)}>{serie.showName}</h4>
-                                {/* {serie.userRating ? <span className="badge yellow-glass-card rounded-pill mb-2" style={{ width: "fit-content" }}>Show rating: {serie.userRating}/10</span> : null} */}
-
-                                <div className="progress mb-2" style={{ maxWidth: "30rem", height: "10px" }}>
-                                    <div className="progress-bar bg-success" style={{ width: `${percentage}%` }}></div>
+                        <div key={serie.showId} className="col-12 col-lg-6" style={{ zIndex: activeShows.length - index }}>
+                            <div className="glass-card card p-3 gap-3 d-flex flex-row position-relative shadow-sm transition-all align-items-center h-100" style={{ borderRadius: "10px" }}>
+                                
+                                <div className="dropdown flex-shrink-0 position-absolute top-0 end-0 m-3" style={{ marginTop: "-2px" }}>
+                                    <button className="btn p-0 text-muted border-0 moreinfo-button-responsive" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i className="bi bi-three-dots-vertical" />
+                                    </button>
+                                    <ul className="dropdown-menu glass-card dropdown-menu-end shadow">
+                                        <li><button className="dropdown-item" onClick={() => navigate(`/show/${serie.showId}`)}>Show Details</button></li>
+                                        <li><button className="dropdown-item" onClick={() => navigate(`/show/${serie.showId}/episode/${nextEpisode?.episodeId}`)}>Episode Details</button></li>
+                                        {/* <li><button className="dropdown-item" onClick={() => handleMarkShowAsWatched(serie.showId, serie.showName)}>Mark entire show as watched</button></li> */}
+                                        <li><hr className="dropdown-divider" /></li>
+                                        <li><button className="dropdown-item" onClick={() => archiveShow(serie.showId)}>Archive (Hide below)</button></li>
+                                        {/* <li><button className="dropdown-item text-danger fw-bold" onClick={() => deleteShowData(serie.showId)}>Delete ALL data & history</button></li> */}
+                                    </ul>
                                 </div>
-                                <small className="text-muted mb-3">{percentage}% - {watchedCount}/{totalCount}</small>
-
-                                {nextEpisode ? (
-                                    <div className="glass-card p-2" style={{ maxWidth: "35rem" }}>
-                                        <p className="mb-2">
-                                            {!isSeasonPremiere && !isSeasonFinale && isToday(nextEpisode.episodeData.airdate) === false && <span className="badge gray-button-glass me-2">Next</span>}
-                                            {isToday(nextEpisode.episodeData.airdate) && <span className="badge red-button-glass me-2">NEW</span>}
-                                            {isSeasonFinale && <span className="badge red-button-glass me-2">Finale 🏁</span>}
-                                            {isSeasonPremiere && <span className="badge lightblue-button-glass me-2">Premier 🍿</span>}
-                                            <strong>S{nextEpisode.episodeData.season}E{nextEpisode.episodeData.number}</strong> - {nextEpisode.episodeData.name}
-                                        </p>
-                                        <button className="lightgreen-button-glass" onClick={() => handleToggleNextEpisode(serie.showId, nextEpisode.episodeData)}>Mark as watched ✓</button>
+                                
+                                <div className="episode-img-responsive flex-shrink-0" style={{ cursor: "pointer" }} onClick={() => navigate(`/show/${serie.showId}`)}>
+                                    {!episodeImgLoaded && (
+                                        <div className="d-flex align-items-center justify-content-center bg-secondary text-light" style={{ borderRadius: "10px", height: "100%", width: "100%" }}>
+                                            <div className="spinner-border spinner-border-sm text-light" role="status"></div>
+                                        </div>
+                                    )}
+                                    <img
+                                        src={imgOriginalMedium || defaultEpisodePoster}
+                                        alt={displayEpisode?.episodeData?.name}
+                                        onLoad={() => setEpisodeImgLoaded(true)}
+                                        style={{ borderRadius: "10px", objectFit: "cover", height: "100%", width: "100%", display: episodeImgLoaded ? "block" : "none" }}
+                                    />
+                                </div>
+                                <div className="d-flex flex-row align-items-center flex-grow-1" style={{ minWidth: 0 }}>
+                                    <div className="d-flex flex-column flex-grow-1 justify-content-center pe-2" style={{ minWidth: 0 }}>
+                                        {/* Visibile solo da tablet in su */}
+                                        <h3 className="mb-2 d-none d-md-block fw-bold px-1" style={{ cursor: "pointer" }} onClick={() => navigate(`/show/${serie.showId}`)}>
+                                            {serie.showName}
+                                        </h3>
+                                        {/* Visibile solo da mobile */}
+                                        <h6 className="mb-1 d-md-none text-truncate fw-bold px-1" style={{ cursor: "pointer", fontSize: "1rem" }} onClick={() => navigate(`/show/${serie.showId}`)}>
+                                            {serie.showName}
+                                        </h6>
+                                        {nextEpisode ? (
+                                            <div className="px-1 pb-1 d-flex align-items-center font-details-responsive" style={{ minWidth: 0 }}>
+                                                {!isSeasonPremiere && !isSeasonFinale && isToday(nextEpisode.episodeData.airdate) === false && <span className="badge gray-button-glass me-2 flex-shrink-0">Next</span>}
+                                                {isToday(nextEpisode.episodeData.airdate) && <span className="badge red-button-glass me-2 flex-shrink-0">NEW</span>}
+                                                {isSeasonFinale && <span className="badge red-button-glass me-2 flex-shrink-0">Finale</span>}
+                                                {isSeasonPremiere && <span className="badge lightblue-button-glass me-2 flex-shrink-0">Premier</span>}
+                                                <div className="text-truncate flex-grow-1" style={{ minWidth: 0 }}>
+                                                    <strong className="me-1">S{nextEpisode.episodeData.season}E{nextEpisode.episodeData.number}</strong>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="px-1 pb-1">
+                                                <p className="text-danger mb-0" style={{ fontSize: "0.85rem" }}>Error on displaying the next episode. Try and reload the page!</p>
+                                            </div>
+                                        )}
+                                        {nextEpisode && (
+                                            <div className="px-1 pb-1 d-flex align-items-center font-details-responsive">
+                                                <p className="text-truncate flex-grow-1 mb-0">{nextEpisode.episodeData.name}</p>
+                                            </div>
+                                        )}
+                                        <div className="d-flex align-items-center px-1 pt-1">
+                                            <div className="progress flex-grow-1 me-2" style={{ height: "5px" }}>
+                                                <div className="progress-bar bg-success" style={{ width: `${percentage}%` }}></div>
+                                            </div>
+                                            <small className="text-muted flex-shrink-0" style={{ fontSize: "0.75rem" }}>{watchedCount}/{totalCount}</small>
+                                        </div>
                                     </div>
-                                ) : (
-                                    <div className="p-2 bg-success text-white rounded bg-opacity-75" style={{ maxWidth: "35rem" }}>
-                                        <p className="mb-0 fw-bold">🎉 You have completed this show!</p>
+                                    <div className="flex-shrink-0 ms-2 d-flex align-items-center">
+                                        {nextEpisode && (
+                                            <button className="rounded-circle lightgreen-button-glass d-flex align-items-center justify-content-center button-mark-responsive" style={{ cursor: "pointer" }} onClick={() => handleToggleNextEpisode(serie.showId, nextEpisode.episodeData)}>✓</button>
+                                        )}
                                     </div>
-                                )}
+                                </div>
                             </div>
                         </div>
                     );
