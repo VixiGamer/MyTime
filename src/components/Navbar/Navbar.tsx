@@ -1,8 +1,10 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import MyTimeLogo from "../../images/MyTime_logo.webp";
+import "./Navbar.css"
 
 export default function Navbar() {
+    const navigate = useNavigate();
     const location = useLocation();
     const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
@@ -15,60 +17,43 @@ export default function Navbar() {
         setTheme(prev => (prev === "light" ? "dark" : "light"));
     };
 
-    const isActive = (path: string) => location.pathname === path;
+    const getButtonClass = (path: string) => {
+        const isActive = path === '/'
+            ? location.pathname === '/'
+            : location.pathname.startsWith(path);
+        return `navbar-item glass-card ${isActive ? 'bg-primary-emphasis' : ''}`;
+    };
 
     return (
-        <nav className="navbar navbar-expand-lg sticky-top glass-navbar shadow-sm py-2 px-3 transition-all">
-            <div className="container">
-                <Link className="navbar-brand d-flex align-items-center fw-bolder fs-4" to="/">
-                    <img src={MyTimeLogo} alt="Logo" width="32" height="32" className="me-2" />
-                    <span className="text-emphasis">MyTime</span>
-                </Link>
+        <div className="fixed-bottom d-flex justify-content-center w-100 pe-none">
+            <nav className="glass-navbar shadow-lg py-2 px-3 m-2 rounded-pill transition-all d-inline-flex pe-auto" style={{ width: "fit-content" }}>
+                <div className="container d-flex flex-row gap-3">
+                    <Link className="d-flex align-items-center fw-bolder fs-4 text-decoration-none" to="/">
+                        <img src={MyTimeLogo} alt="Logo" width="32" height="32" className="me-2" />
+                        <span className="d-none d-sm-block" style={{ color: `var(--text-main)` }}>MyTime</span>
+                    </Link>
 
-                <button className="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span className="navbar-toggler-icon"></span>
-                </button>
+                    <div className="d-flex flex-row gap-3">
+                        <button className={getButtonClass('/')} onClick={() => navigate(`/`)}>
+                            <i className="bi bi-house"></i>
+                        </button>
+                        <button className={getButtonClass('/search')} onClick={() => navigate(`/search`)}>
+                            <i className="bi bi-search"></i>
+                        </button>
+                        <button className={getButtonClass('/watching')} onClick={() => navigate(`/watching`)}>
+                            <i className="bi bi-view-list"></i>
+                        </button>
+                        <button className={getButtonClass('/list')} onClick={() => navigate(`/list`)}>
+                            <i className="bi bi-list"></i>
+                        </button>
 
-                <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
-                    <ul className="navbar-nav gap-2 mt-3 mt-lg-0 align-items-center list-unstyled">
-                        {[
-                            { path: "/", label: "Home" },
-                            { path: "/search", label: "Search" },
-                            { path: "/watching", label: "Watching" },
-                            { path: "/list", label: "Lists" }
-                        ].map((link) => (
-                            <li className="nav-item w-100 text-center text-lg-start" key={link.path}>
-                                <Link 
-                                    className={`nav-link px-3 py-2 rounded-pill transition-all fw-semibold ${
-                                        isActive(link.path) 
-                                        ? "bg-primary-emphasis" 
-                                        : ""
-                                    }`} 
-                                    to={link.path}
-                                >
-                                    {link.label}
-                                </Link>
-                            </li>
-                        ))}
+                        <button onClick={toggleTheme} className="navbar-item glass-card" >
+                            {theme === "light" ? <i className="bi bi-moon-fill" /> : <i className="bi bi-brightness-high-fill" />}
+                        </button>
 
-                        <li className="nav-item ms-lg-2 d-flex justify-content-center">
-                            <button 
-                                onClick={toggleTheme}
-                                className="btn border-0 p-2 d-flex align-items-center justify-content-center rounded-circle transition-all theme-toggle-btn"
-                                style={{ 
-                                    width: "40px", 
-                                    height: "40px",
-                                    backgroundColor: theme === "light" ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.1)",
-                                    fontSize: "1.2rem",
-                                    lineHeight: "0"
-                                }}
-                            >
-                                {theme === "light" ? <i className="bi bi-moon-fill" /> : <i className="bi bi-brightness-high-fill" />}
-                            </button>
-                        </li>
-                    </ul>
+                    </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </div>
     );
 }

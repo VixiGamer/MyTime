@@ -327,7 +327,7 @@ export default function SingleShowPage() {
     return (
         <>
             {/* Background sfocato */}
-            <div style={{ backgroundImage: bgGradient }}>
+            <div style={{ backgroundImage: bgGradient, paddingBottom: "5rem" }}>
 
                 <div className="p-4 container position-relative">
                     <button className="glass-card mb-4 px-3 py-2 shadow-sm" style={{ color: "var(--text-main)" }} onClick={() => navigate(-1)}>
