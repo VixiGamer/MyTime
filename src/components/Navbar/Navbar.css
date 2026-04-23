@@ -3,6 +3,7 @@
     width: 2.5rem;
     font-size: 1.2rem;
     border-radius: 50%;
+    color: var(--text-main);
     display: flex;
     justify-content: center;
     align-items: center;
