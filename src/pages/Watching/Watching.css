@@ -8,8 +8,8 @@
 /* Tablet e desktop */
 @media (min-width: 768px) {
   .episode-img-responsive {
-    width: 17rem;
-    height: 10rem;
+    width: 12rem;
+    height: 8rem;
   }
 }
 
