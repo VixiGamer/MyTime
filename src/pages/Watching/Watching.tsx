@@ -6,8 +6,8 @@ import axios from "axios";
 import RatingModal from "../../components/RatingModal/RatingModal";
 import defaultPoster from "../../images/poster_default.png";
 import defaultEpisodePoster from "../../images/episode_default.png";
-// import { Vibrant } from "node-vibrant/browser";
-// import type { Palette, Swatch } from "@vibrant/color";
+import { Vibrant } from "node-vibrant/browser";
+import type { Palette, Swatch } from "@vibrant/color";
 import "./Watching.css"
 
 export default function Watching() {
@@ -28,7 +28,7 @@ export default function Watching() {
 
     const navigate = useNavigate();
 
-    // const [bgEpisodeGradient, setBgEpisodeGradient] = useState("");
+    const [bgEpisodeGradient, setBgEpisodeGradient] = useState("");
 
 
     //§ --- STATO DELLA MODALE DI VALUTAZIONE ---
@@ -101,39 +101,50 @@ export default function Watching() {
     //     });
     // };
 
-    /*
-    function EpisodeCardBackground({ imgUrl }: { imgUrl?: string }) {
 
-        useEffect(() => {
-            if (!imgUrl) return;
+    //* Estraggo un array contenente i link delle immagini dei "prossimi episodi" per tutte le serie attive
+    const nextEpisodesImages = activeShows.map(serie => {
+        const nextEpisode = serie.episodes.find(e => e.sessionWatched === false);        // Cerco il primo episodio non ancora visto di questa specifica serie
+        const displayEpisode = nextEpisode || serie.episodes[serie.episodes.length - 1];        // Se esiste prendo quello, altrimenti per fallback prendo l'ultimo episodio della serie
+        return displayEpisode?.episodeData.image?.original || displayEpisode?.episodeData.image?.medium;        // Ritorno il link dell'immagine (dando priorità alla qualità 'original', altrimenti 'medium')
+    }).filter(Boolean) as string[]; // filter(Boolean) rimuove eventuali valori null o undefined
 
-            Vibrant.from(imgUrl)
-                .getPalette()
-                .then((palette: Palette) => {
-                    const colors = Object.values(palette)
-                        .filter((swatch): swatch is Swatch => Boolean(swatch))
-                        .map((swatch) => swatch.rgb);
+    const firstValidImage = nextEpisodesImages.length > 0 ? nextEpisodesImages[0] : null;    // Prendo solo la prima immagine valida trovata (che corrisponde alla serie attiva più recente)
 
-                    if (colors.length === 0) return;
 
-                    const selected = colors.slice(0, 5);
-                    const colorStrings = selected.map(
-                        (c: number[]) => `rgb(${c.join(",")})`
-                    );
+    useEffect(() => {
+        // Se non ho trovato nessuna immagine, resetto il gradiente a stringa vuota ed esco
+        if (!firstValidImage) {
+            setBgEpisodeGradient("");
+            return;
+        }
 
-                    const gradient = `linear-gradient(135deg, ${colorStrings.join(",")})`;
-                    setBgEpisodeGradient(gradient);
-                })
-                .catch((err) => {
-                    console.error("Errore Vibrant:", err);
-                });
-        }, [imgUrl]);
+        Vibrant.from(firstValidImage)
+            .getPalette()
+            .then((palette: Palette) => {
+                // Trasformo l'oggetto palette in un array, filtro via i colori non validi e prendo i valori RGB
+                const colors = Object.values(palette)
+                    .filter((swatch): swatch is Swatch => Boolean(swatch))
+                    .map((swatch) => swatch.rgb);
 
-        return bgEpisodeGradient
-    }
+                // Se la libreria non riesce a trovare colori validi, mi fermo qui
+                if (colors.length === 0) return;
 
-    backgroundImage: EpisodeCardBackground({ imgUrl: imgOriginalMedium })
-    */
+                // Prendo al massimo i primi 5 colori trovati
+                const selected = colors.slice(0, 5);
+                // Trasformo l'array di numeri RGB in stringhe CSS leggibili
+                const colorStrings = selected.map((c: number[]) => `rgb(${c.join(",")})`);
+
+                // Costruisco la stringa finale del CSS linear-gradient usando i colori calcolati
+                const gradient = `linear-gradient(135deg, ${colorStrings.join(",")})`;
+                // Salvo il risultato nello stato, che aggiornerà lo sfondo del container principale
+                setBgEpisodeGradient(gradient);
+            })
+            .catch((err) => {
+                console.error("Errore Vibrant:", err);
+            });
+    }, [firstValidImage]);
+
 
     const today = new Date();
     today.setHours(0, 0, 0, 0)
@@ -153,7 +164,7 @@ export default function Watching() {
 
 
     return (
-        <div style={{ paddingBottom: "4rem" }}>
+        <div style={{ paddingBottom: "4rem", backgroundImage: bgEpisodeGradient }}>
             <div className="p-4 container">
                 <header className="mb-5 text-center text-md-start">
                     <h1 className="fw-bolder display-5">Next to watch</h1>
@@ -293,10 +304,11 @@ export default function Watching() {
                                 <div className="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-4">
                                     {archivedShows.map((serie) => (
                                         <div key={serie.showId} className="col">
-                                            <div className="card h-100 bg-transparent border-0 transition-all" style={{ opacity: 0.85 }}>
+                                            <div className="card h-100 bg-transparent border-0 transition-all">
                                                 <div className="position-relative shadow-sm" style={{ borderRadius: "15px", overflow: "hidden", aspectRatio: "2/3" }}>
+                                                    {/* Sostituiamo "medium_portrait" con "original_untouched" per forzare l'alta risoluzione anche per le serie salvate in passato */}
                                                     <img
-                                                        src={serie.showImage || defaultPoster}
+                                                        src={serie.showImage?.replace("medium_portrait", "original_untouched") || defaultPoster}
                                                         alt={serie.showName}
                                                         onClick={() => navigate(`/show/${serie.showId}`)}
                                                         style={{ cursor: "pointer", objectFit: "cover", width: "100%", height: "100%" }}
@@ -345,8 +357,9 @@ export default function Watching() {
                                         <div key={serie.showId} className="col">
                                             <div className="card h-100 bg-transparent border-0 transition-all hover-scale">
                                                 <div className="position-relative shadow-sm" style={{ borderRadius: "15px", overflow: "hidden", aspectRatio: "2/3" }}>
+                                                    {/* Sostituiamo "medium_portrait" con "original_untouched" per forzare l'alta risoluzione anche per le serie salvate in passato */}
                                                     <img
-                                                        src={serie.showImage || defaultPoster}
+                                                        src={serie.showImage?.replace("medium_portrait", "original_untouched") || defaultPoster}
                                                         alt={serie.showName}
                                                         onClick={() => navigate(`/show/${serie.showId}`)}
                                                         style={{ cursor: "pointer", objectFit: "cover", width: "100%", height: "100%" }}
@@ -358,6 +371,21 @@ export default function Watching() {
                                                             <i className="bi bi-eye-fill" /> {serie.allTimeCount}
                                                         </span>
                                                     </div>
+
+                                                    {/* Badge per la valutazione dellam serie */}
+                                                    {serie.userRating && (
+                                                        <div className="position-absolute top-0 start-0 m-2">
+                                                            <span className={`badge rounded-pill ${Number(serie.userRating) < 3 ? 'pink-glass-card' :
+                                                                Number(serie.userRating) < 5 ? 'red-glass-card' :
+                                                                    Number(serie.userRating) < 7 ? 'yellow-glass-card' :
+                                                                        Number(serie.userRating) < 8 ? 'lightgreen-glass-card' :
+                                                                            Number(serie.userRating) < 10 ? 'green-glass-card' :
+                                                                                'lightblue-glass-card'
+                                                                } text-light shadow-sm d-flex align-items-center gap-1`} style={{ fontSize: '0.8rem', backdropFilter: "blur(4px)" }}>
+                                                            <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {serie.userRating}/10
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 <div className="card-body p-2 px-0 text-center d-flex flex-column">

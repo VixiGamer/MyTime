@@ -48,7 +48,7 @@ export default function SingleShowPage() {
     const [dateTimeModal, setDateTimeModal] = useState<{
         isOpen: boolean;
         episode: SingleEpisode | null;
-        actionType: 'toggle' | 'rewatch';
+        actionType: 'toggle' | 'rewatch' | 'markShow';
     }>({
         isOpen: false,
         episode: null,
@@ -334,7 +334,7 @@ export default function SingleShowPage() {
                         ← Back
                     </button>
 
-                    <div className="glass-card p-4 mb-5 shadow-lg border-0">
+                    <div className="glass-card p-4 mb-5 shadow-lg border-0 position-relative" style={{ zIndex: 10 }}>
                         <div className="row g-4">
                             {/* Poster Column */}
                             <div className="col-md-4 col-lg-3">
@@ -360,6 +360,7 @@ export default function SingleShowPage() {
                                 <p className="fw-bold text-uppercase mb-3" style={{ color: "#2FA4D7", letterSpacing: "1.5px" }}>
                                     {singleShowData?.genres?.join(" • ") || "No genres available"}
                                 </p>
+
                                 {/* Action Buttons */}
                                 <div className="d-flex gap-3 mb-4 flex-wrap">
                                     {isBeingWatched && (
@@ -478,12 +479,49 @@ export default function SingleShowPage() {
                                                 </li>
                                                 <li>
                                                     {!isShowFullyWatched && (
-                                                        <button
-                                                            className="dropdown-item"
-                                                            onClick={() => markShowAsWatched(Number(showId))}
-                                                        >
-                                                            Mark Entire Show as Watched
-                                                        </button>
+                                                        <div>
+                                                            <button
+                                                                className="dropdown-item py-2 d-flex justify-content-between align-items-center"
+                                                                type="button"
+                                                                data-bs-toggle="collapse"
+                                                                data-bs-target={`#collapseDate-${showId}`}
+                                                                onClick={(e) => e.stopPropagation()}
+                                                            >
+                                                                Mark Entire Show as Watched <i className="bi bi-chevron-down ms-3" style={{ fontSize: "0.8rem" }}></i>
+                                                            </button>
+                                                            <div className="collapse" id={`collapseDate-${showId}`}>
+
+                                                                <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => {
+                                                                    const d = new Date();
+                                                                    markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                                                                    if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
+                                                                }}>Today</button>
+
+                                                                <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => {
+                                                                    const d = new Date();
+                                                                    d.setDate(d.getDate() - 1);
+                                                                    markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                                                                    if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
+                                                                }}>Yesterday</button>
+
+                                                                <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => {
+                                                                    const d = new Date();
+                                                                    d.setDate(d.getDate() - 2);
+                                                                    markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                                                                    if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
+                                                                }}>2 days ago</button>
+
+                                                                <button type="button" className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    e.stopPropagation();
+                                                                    setDateTimeModal({
+                                                                        isOpen: true,
+                                                                        episode: null,
+                                                                        actionType: 'markShow'
+                                                                    });
+                                                                }}>Custom date</button>
+                                                            </div>
+                                                        </div>
                                                     )}
                                                 </li>
                                                 <li>
@@ -622,9 +660,55 @@ export default function SingleShowPage() {
                                                 <li><button className="dropdown-item" onClick={() => handleMarkSeason(selectedSeason)}>
                                                     {isSeasonFullyWatched ? `Unmark Season ${selectedSeason}` : `Mark Season ${selectedSeason} as watched`}
                                                 </button></li>
-                                                <li><button className="dropdown-item" onClick={() => handleMarkShow}>
-                                                    {isShowFullyWatched ? 'Unmark entire show' : 'Mark entire show as watched'}
-                                                </button></li>
+                                                {isShowFullyWatched ? (
+                                                    <li><button className="dropdown-item" onClick={() => handleMarkShow()}>Unmark entire show</button></li>
+                                                ) : (
+                                                    <li>
+                                                        <div>
+                                                            <button
+                                                                className="dropdown-item py-2 d-flex justify-content-between align-items-center"
+                                                                type="button"
+                                                                data-bs-toggle="collapse"
+                                                                data-bs-target={`#collapseDate-${showId}`}
+                                                                onClick={(e) => e.stopPropagation()}
+                                                            >
+                                                                Mark Entire Show as Watched <i className="bi bi-chevron-down ms-3" style={{ fontSize: "0.8rem" }}></i>
+                                                            </button>
+                                                            <div className="collapse" id={`collapseDate-${showId}`}>
+
+                                                                <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => {
+                                                                    const d = new Date();
+                                                                    markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                                                                    if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
+                                                                }}>Today</button>
+
+                                                                <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => {
+                                                                    const d = new Date();
+                                                                    d.setDate(d.getDate() - 1);
+                                                                    markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                                                                    if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
+                                                                }}>Yesterday</button>
+
+                                                                <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => {
+                                                                    const d = new Date();
+                                                                    d.setDate(d.getDate() - 2);
+                                                                    markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                                                                    if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
+                                                                }}>2 days ago</button>
+
+                                                                <button type="button" className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    e.stopPropagation();
+                                                                    setDateTimeModal({
+                                                                        isOpen: true,
+                                                                        episode: null,
+                                                                        actionType: 'markShow'
+                                                                    });
+                                                                }}>Custom date</button>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                )}
                                                 {isSeasonFullyWatched && (
                                                     <li><button className="dropdown-item" onClick={() => {
                                                         if (window.confirm(`Vuoi resettare il progresso della Stagione ${selectedSeason} per rivederla?`)) {
@@ -918,13 +1002,17 @@ export default function SingleShowPage() {
                         isOpen={dateTimeModal.isOpen}
                         onClose={() => setDateTimeModal({ ...dateTimeModal, isOpen: false })}
                         onConfirm={(date, time) => {
-                            if (dateTimeModal.episode) {
-                                // Formattiamo la data da YYYY-MM-DD a DD/MM/YYYY per coerenza
-                                const [year, month, day] = date.split('-');
-                                const formattedDate = `${day}/${month}/${year}`;
+                            // Formattiamo la data da YYYY-MM-DD a DD/MM/YYYY per coerenza
+                            const [year, month, day] = date.split('-');
+                            const formattedDate = `${day}/${month}/${year}`;
+
+                            if (dateTimeModal.actionType === 'markShow') {
+                                markShowAsWatched(Number(showId), formattedDate, time);
+                                if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
+                            } else if (dateTimeModal.episode) {
                                 if (dateTimeModal.actionType === 'rewatch') {
                                     rewatchEpisode(Number(showId), dateTimeModal.episode.id, formattedDate, time);
-                                } else {
+                                } else if (dateTimeModal.actionType === 'toggle') {
                                     handleToggleEpisode(dateTimeModal.episode, formattedDate, time);
                                 }
                             }
