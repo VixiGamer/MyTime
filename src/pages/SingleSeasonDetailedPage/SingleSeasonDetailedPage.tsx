@@ -158,7 +158,7 @@ export default function SingleSeasonDetailedPage() {
     );
 
     return (
-        <div style={{ backgroundImage: bgGradient }} className="min-vh-100 w-100">
+        <div style={{ backgroundImage: bgGradient, paddingBottom: "3rem" }} className="min-vh-100 w-100">
             <div className="container py-4">
                 {/* Header / Back Button */}
                 <button className="glass-card mb-4 px-3 py-2 shadow-sm" style={{ color: "var(--text-main)"}} onClick={() => navigate(-1)}>

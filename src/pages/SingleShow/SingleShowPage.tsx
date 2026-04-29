@@ -209,8 +209,7 @@ export default function SingleShowPage() {
                 console.error("Errore Vibrant:", err);
             });
 
-    }, [imgOriginalMedium]
-    );
+    }, [imgOriginalMedium]);
 
     function formatDate(date?: string | null): string {
         if (!date) return "N/A"
@@ -327,8 +326,7 @@ export default function SingleShowPage() {
     return (
         <>
             {/* Background sfocato */}
-            <div style={{ backgroundImage: bgGradient, paddingBottom: "4rem" }}>
-
+            <div style={{ backgroundImage: bgGradient, paddingBottom: "3rem" }}>
                 <div className="p-4 container position-relative">
                     <button className="glass-card mb-4 px-3 py-2 shadow-sm" style={{ color: "var(--text-main)" }} onClick={() => navigate(-1)}>
                         ← Back
@@ -349,14 +347,18 @@ export default function SingleShowPage() {
                                         alt={singleShowData?.name}
                                         className="img-fluid w-100"
                                         onLoad={() => setPosterImgLoaded(true)}
-                                        style={{ display: posterImgLoaded ? "block" : "none", objectFit: "cover", minHeight: "400px" }}
+                                        style={{
+                                            display: posterImgLoaded ? "block" : "none",
+                                            objectFit: "cover",
+                                            minHeight: "400px"
+                                        }}
                                     />
                                 </div>
                             </div>
 
                             {/* Content Column */}
                             <div className="col-md-8 col-lg-9 d-flex flex-column">
-                                <h1 className="display-4 fw-bold">{singleShowData?.name}</h1>
+                                <h1 className="display-4 fw-bold">{singleShowData?.name || "Show name unavalible"}</h1>
                                 <p className="fw-bold text-uppercase mb-3" style={{ color: "#2FA4D7", letterSpacing: "1.5px" }}>
                                     {singleShowData?.genres?.join(" • ") || "No genres available"}
                                 </p>
@@ -960,19 +962,21 @@ export default function SingleShowPage() {
 
                     </div>
 
-                    <div style={{ marginTop: "4rem" }}>
-                        <h2 className="fw-bold mb-4 px-2">Cast</h2>
-                        <div className="glass-card p-3 d-flex flex-nowrap gap-2 overflow-x-auto scrollbar-no" style={{ scrollBehavior: "smooth" }}>
+                    <div className="glass-card p-3" style={{ marginTop: "4rem" }}>
+                        <h2 className="display-5 fw-bold mb-3">Cast</h2>
+                        <div className="d-flex flex-nowrap gap-2 overflow-x-auto scrollbar-no" style={{ scrollBehavior: "smooth" }}>
                             {cast.map((cast) => {
                                 return (
-                                    <div className="card border p-0" style={{ textAlign: "center", cursor: "pointer", flex: "0 0 auto", width: "10rem", borderRadius: "15px" }} onClick={() => navigate(`/actor/${cast.person.id}`)}>
+                                    <div key={cast.person.id} className="card border p-0 overflow-hidden h-100 d-flex flex-column" style={{ textAlign: "center", cursor: "pointer", flex: "0 0 auto", width: "10rem", borderRadius: "15px" }} onClick={() => navigate(`/actor/${cast.person.id}`)}>
                                         <img
-                                            src={cast.person.image?.medium || cast.person.image?.original}
-                                            style={{ borderTopLeftRadius: "15px", borderTopRightRadius: "15px" }}
+                                            src={cast.person.image?.original || cast.person.image?.medium || defaultPoster}
+                                            alt={cast.person.name}
+                                            className="w-100 flex-shrink-0"
+                                            style={{ height: "14rem", objectFit: "cover" }}
                                         />
-                                        <div className="mt-2 px-3 h-100 d-flex flex-column justify-content-center align-content-center">
-                                            <strong>{cast.person.name}</strong>
-                                            <p className="mt-1">{cast.character.name}</p>
+                                        <div className="p-2 d-flex flex-column justify-content-center flex-grow-1">
+                                            <strong className="text-truncate">{cast.person.name}</strong>
+                                            <p className="mt-1 mb-0 text-truncate">{cast.character.name}</p>
                                         </div>
                                     </div>
                                 )

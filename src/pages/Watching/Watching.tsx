@@ -382,7 +382,7 @@ export default function Watching() {
                                                                             Number(serie.userRating) < 10 ? 'green-glass-card' :
                                                                                 'lightblue-glass-card'
                                                                 } text-light shadow-sm d-flex align-items-center gap-1`} style={{ fontSize: '0.8rem', backdropFilter: "blur(4px)" }}>
-                                                            <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {serie.userRating}/10
+                                                                <i className="bi bi-heart-fill" style={{ color: "#dc3545" }} /> {serie.userRating}/10
                                                             </span>
                                                         </div>
                                                     )}
