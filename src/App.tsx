@@ -28,10 +28,10 @@ const router = createBrowserRouter([
     path: '/',
     element: <Layout />,
     children: [
-      { index: true, element: <HomePage /> },
+      { element: <HomePage /> },
       { path: 'search', element: <Search /> },
       { path: 'show/:showId', element: <SingleShowPage /> },
-      { path: 'watching', element: <Watching /> },
+      { index: true, path: 'watching', element: <Watching /> },
       { path: 'list', element: <List /> },
       { path: 'show/:showId/season/:seasonId', element: <SingleSeasonDetailedPage /> },
       { path: '/show/:showId/episode/:episodeId', element: <SingleEpisodeDetailedPage /> },
