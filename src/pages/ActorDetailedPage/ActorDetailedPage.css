@@ -1,0 +1,30 @@
+/** Media query per l'altezza delle immaggini cosi da essere fisse */
+
+.actor-show-image {
+    object-fit: cover;
+    height: 17rem; /* Default per il desktop */
+}
+
+@media (max-width: 1366px) {
+    .actor-show-image {
+        height: 14rem;
+    }
+}
+
+@media (max-width: 430px) {
+    .actor-show-image {
+        height: 13rem;
+    }
+}
+
+@media (max-width: 402px) {
+    .actor-show-image {
+        height: 12rem;
+    }
+}
+
+@media (max-width: 375px) {
+    .actor-show-image {
+        height: 10rem;
+    }
+}

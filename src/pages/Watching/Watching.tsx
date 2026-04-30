@@ -166,8 +166,9 @@ export default function Watching() {
     return (
         <div style={{ paddingBottom: "4rem", backgroundImage: bgEpisodeGradient }}>
             <div className="p-4 container">
-                <header className="mb-5 text-center text-md-start">
+                <header className="mb-5 text-center text-md-start d-flex gap-3 align-items-center">
                     <h1 className="fw-bolder display-5">Next to watch</h1>
+                    <p className="text-muted m-0 d-none d-md-block">Keep track of your ongoing shows and see what's up next</p>
                 </header>
 
                 {activeShows.length === 0 && (
@@ -389,7 +390,7 @@ export default function Watching() {
                                                 </div>
 
                                                 <div className="card-body p-2 px-0 text-center d-flex flex-column">
-                                                    <h6 className="card-title text-truncate fw-bold mb-2" title={serie.showName} style={{ fontSize: "0.95rem" }}>
+                                                    <h6 className="card-title text-truncate fw-bold mb-2 px-2" title={serie.showName} style={{ fontSize: "0.95rem" }}>
                                                         {serie.showName}
                                                     </h6>
 

@@ -326,7 +326,7 @@ export default function SingleShowPage() {
     return (
         <>
             {/* Background sfocato */}
-            <div style={{ backgroundImage: bgGradient, paddingBottom: "3rem" }}>
+            <div className="min-vh-100" style={{ backgroundImage: bgGradient, paddingBottom: "3rem" }}>
                 <div className="p-4 container position-relative">
                     <button className="glass-card mb-4 px-3 py-2 shadow-sm" style={{ color: "var(--text-main)" }} onClick={() => navigate(-1)}>
                         ← Back
@@ -442,6 +442,10 @@ export default function SingleShowPage() {
                                     <div className="col">
                                         <small className="text-muted d-block">Show ID</small>
                                         <strong>#{singleShowData?.id}</strong>
+                                    </div>
+                                    <div className="col">
+                                        <small className="text-muted d-block">IMDB ID</small>
+                                        <strong>{singleShowData?.externals.imdb || "N/A"}</strong>
                                     </div>
                                     <div className="col">
                                         <small className="text-muted d-block">Official Site</small>

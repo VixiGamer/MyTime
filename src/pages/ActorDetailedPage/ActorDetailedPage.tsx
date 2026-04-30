@@ -8,6 +8,7 @@ import type { CastCredits } from "../../Types/CastCredits";
 import { Vibrant } from "node-vibrant/browser";
 import type { Palette, Swatch } from "@vibrant/color";
 import Error500 from "../../components/Error500/Error500";
+import "./ActorDetailedPage.css";
 
 
 
@@ -239,11 +240,10 @@ export default function ActorDetailedPage() {
                                                 <img
                                                     src={show.image?.original || show.image?.medium || defaultPoster}
                                                     alt={show.name}
-                                                    className="w-100"
-                                                    style={{ objectFit: "cover" }}
+                                                    className="w-100 actor-show-image"
                                                 />
                                                 <div className="card-body p-2 text-center">
-                                                    <h6 className="card-title text-truncate mb-0" style={{ fontSize: "0.9rem" }}>{show.name}</h6>
+                                                    <h6 className="card-title text-truncate mb-0" style={{ fontSize: "1rem" }}>{show.name}</h6>
                                                 </div>
                                             </div>
                                         </div>
