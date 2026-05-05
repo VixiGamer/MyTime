@@ -114,6 +114,7 @@ export default function List() {
                         <button
                             onClick={handleAddList}
                             className="glass-card rounded-pill fw-bold px-3"
+                            style={{ color: "var(--text-main)" }}
                             type="button"
                         >
                             Add list
