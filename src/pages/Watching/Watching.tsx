@@ -164,7 +164,7 @@ export default function Watching() {
 
 
     return (
-        <div style={{ paddingBottom: "4rem", backgroundImage: bgEpisodeGradient }}>
+        <div className="min-vh-100 w-100" style={{ paddingBottom: "4rem", backgroundImage: bgEpisodeGradient }}>
             <div className="p-4 container">
                 <header className="mb-5 text-center text-md-start d-flex gap-3 align-items-center">
                     <h1 className="fw-bolder display-5">Next to watch</h1>

@@ -1,80 +1,99 @@
 /* --- GLOBAL STYLES & DARK MODE --- */
 [data-bs-theme="light"] {
-  --bg-glass: rgba(255, 255, 255, 0.7);
-  --border-glass: rgba(0, 0, 0, 0.1);
-  --body-bg: #f8f9fa;
-  --text-main: #212529;
+    --bg-glass: rgba(255, 255, 255, 0.7);
+    --border-glass: rgba(0, 0, 0, 0.1);
+    --body-bg: #f8f9fa;
+    --text-main: #212529;
 }
 
 [data-bs-theme="dark"] {
-  --bg-glass: rgba(33, 37, 41, 0.8);
-  --border-glass: rgba(255, 255, 255, 0.1);
-  --body-bg: #121212;
-  --text-main: #f8f9fa;
+    --bg-glass: rgba(33, 37, 41, 0.8);
+    --border-glass: rgba(255, 255, 255, 0.1);
+    --body-bg: #121212;
+    --text-main: #f8f9fa;
 }
 
 .glass-navbar {
-  background-color: var(--bg-glass);
-  border-bottom: 1px solid var(--border-glass);
-  backdrop-filter: blur(9px);
-  -webkit-backdrop-filter: blur(9px) !important;
-  z-index: 1070;
+    background-color: var(--bg-glass);
+    border-bottom: 1px solid var(--border-glass);
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px) !important;
+    z-index: 1070;
 }
 
 .glass-card {
-  background-color: var(--bg-glass);
-  border: 1px solid var(--border-glass);
-  backdrop-filter: blur(9px);
-  -webkit-backdrop-filter: blur(9px) !important;
-  border-radius: 25px !important;
+    background-color: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: 25px !important;
+    position: relative;
+    isolation: isolate;
+    /* Crea un contesto isolato senza alterare lo z-index di Bootstrap */
+}
+
+/* Gestiamo l'effetto sfocato in isolamento su uno pseudo-elemento */
+.glass-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px) !important;
+    z-index: -1;
+    /* Manda la sfocatura dietro ai testi */
+    pointer-events: none;
+    /* Permette il click sugli elementi sottostanti */
 }
 
 /* Rendi gli elementi interni trasparenti e coerenti */
 .glass-card .dropdown-item {
-  background: transparent !important;
-  transition: all 0.2s ease;
-  margin-bottom: 2px;
+    background: transparent !important;
+    transition: all 0.2s ease;
+    margin-bottom: 2px;
 }
 
 /* Effetto hover sugli elementi del menu */
 .glass-card .dropdown-item:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important; /* Leggera luce al passaggio */
-  border-radius: 15px !important;
-  width: 95%;
-  transform: translateX(5px);
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    /* Leggera luce al passaggio */
+    border-radius: 15px !important;
+    width: 95%;
+    transform: translateX(5px);
 }
 
 /* Sistema il divisore per il glassmorphism */
 .glass-card .dropdown-divider {
-  border-top: 1px solid var(--border-glass) !important;
-  opacity: 0.5;
+    border-top: 1px solid var(--border-glass) !important;
+    opacity: 0.5;
 }
 
 /* Rimuovi l'ombra netta di Bootstrap se vuoi un effetto vetro puro */
 .dropdown-menu.glass-card {
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
 }
 
 body {
-  background-color: var(--body-bg) !important;
-  color: var(--text-main) !important;
-  transition: background-color 0.3s ease, color 0.3s ease;
+    background-color: var(--body-bg) !important;
+    color: var(--text-main) !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* La classe della "Pillola" attiva */
 .bg-primary-emphasis {
     /* Lo sfondo della pillola diventa il colore del testo principale */
-    background-color: var(--text-main) !important; 
+    background-color: var(--text-main) !important;
     /* Il testo dentro la pillola diventa il colore dello sfondo della pagina */
-    color: var(--body-bg) !important; 
+    color: var(--body-bg) !important;
     border: none !important;
 }
 
-.nav-item, .navbar-nav {
+.nav-item,
+.navbar-nav {
     list-style: none !important;
 }
 
-.transition-all { transition: all 0.3s ease-in-out; }
+.transition-all {
+    transition: all 0.3s ease-in-out;
+}
 
 .theme-toggle-btn:hover {
     transform: scale(1.1);
@@ -93,6 +112,7 @@ body {
     -webkit-backdrop-filter: blur(12px) !important;
     border-radius: 25px !important;
 }
+
 .blue-glass-card {
     background-color: rgb(13, 110, 253, 0.4);
     border: 1px solid rgb(13, 110, 253);
@@ -111,6 +131,7 @@ body {
     -webkit-backdrop-filter: blur(12px) !important;
     border-radius: 25px !important;
 }
+
 .lightblue-glass-card {
     background-color: rgb(13, 202, 240, 0.4);
     border: 1px solid rgb(13, 202, 240);
@@ -120,25 +141,26 @@ body {
 }
 
 
-.gray-button-glass{
+.gray-button-glass {
     background-color: rgb(108, 117, 125, 0.3);
     border: 1px solid rgb(108, 117, 125, 0.6);
-    color: var(--text-main);
+    color: #f8f9fa;
     padding: 5px 10px;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px) !important;
     border-radius: 25px !important;
 }
-.gray-glass-card{
+
+.gray-glass-card {
     background-color: rgb(108, 117, 125, 0.3);
     border: 1px solid rgb(108, 117, 125, 0.6);
-    color: var(--text-main);
+    color: #f8f9fa;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px) !important;
 }
 
 
-.lightgray-button-glass{
+.lightgray-button-glass {
     background-color: rgba(110, 110, 110, 0.3);
     border: 1px solid rgb(110, 110, 110, 0.6);
     color: var(--text-main);
@@ -147,7 +169,8 @@ body {
     -webkit-backdrop-filter: blur(12px) !important;
     border-radius: 25px !important;
 }
-.lightgray-glass-card{
+
+.lightgray-glass-card {
     background-color: rgb(110, 110, 110, 0.3);
     border: 1px solid rgb(110, 110, 110, 0.6);
     color: var(--text-main);
@@ -156,7 +179,7 @@ body {
 }
 
 
-.darkgray-button-glass{
+.darkgray-button-glass {
     background-color: rgb(27, 27, 27, 0.3);
     border: 1px solid rgb(27, 27, 27, 0.6);
     color: var(--text-main);
@@ -165,7 +188,8 @@ body {
     -webkit-backdrop-filter: blur(12px) !important;
     border-radius: 25px !important;
 }
-.darkgray-glass-card{
+
+.darkgray-glass-card {
     background-color: rgb(27, 27, 27, 0.3);
     border: 1px solid rgb(27, 27, 27, 0.6);
     color: var(--text-main);
@@ -183,6 +207,7 @@ body {
     -webkit-backdrop-filter: blur(12px) !important;
     border-radius: 25px !important;
 }
+
 .yellow-glass-card {
     background-color: rgb(255, 193, 7, 0.4);
     border: 1px solid rgb(255, 193, 7);
@@ -201,6 +226,7 @@ body {
     -webkit-backdrop-filter: blur(12px) !important;
     border-radius: 25px !important;
 }
+
 .pink-glass-card {
     background-color: rgb(214, 51, 132, 0.4);
     border: 1px solid rgb(214, 51, 132);
@@ -219,6 +245,7 @@ body {
     -webkit-backdrop-filter: blur(12px) !important;
     border-radius: 25px !important;
 }
+
 .red-glass-card {
     background-color: rgb(220, 53, 69, 0.5);
     border: 1px solid rgb(220, 53, 69);
@@ -237,6 +264,7 @@ body {
     -webkit-backdrop-filter: blur(12px) !important;
     border-radius: 25px !important;
 }
+
 .lightgreen-glass-card {
     background-color: rgb(31, 169, 109, 0.4);
     border: 1px solid rgb(31, 169, 109);
@@ -255,6 +283,7 @@ body {
     -webkit-backdrop-filter: blur(12px) !important;
     border-radius: 25px !important;
 }
+
 .green-glass-card {
     background-color: rgb(25, 135, 84, 0.5);
     border: 1px solid rgb(25, 135, 84);
@@ -273,6 +302,7 @@ body {
     -webkit-backdrop-filter: blur(12px) !important;
     border-radius: 25px !important;
 }
+
 .rate-glass-card {
     background-color: rgb(108, 117, 125, 0.7);
     border: 1px solid rgb(108, 117, 125, 0.9);
@@ -282,10 +312,13 @@ body {
 }
 
 .scrollbar-no {
-  scrollbar-width: none;      /* Firefox */
-  -ms-overflow-style: none;   /* IE/Edge vecchi */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge vecchi */
 }
 
 .scrollbar-no::-webkit-scrollbar {
-  display: none;              /* Chrome, Safari */
+    display: none;
+    /* Chrome, Safari */
 }

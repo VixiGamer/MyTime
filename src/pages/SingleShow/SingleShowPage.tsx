@@ -326,7 +326,7 @@ export default function SingleShowPage() {
     return (
         <>
             {/* Background sfocato */}
-            <div className="min-vh-100" style={{ backgroundImage: bgGradient, paddingBottom: "3rem" }}>
+            <div className="min-vh-100 w-100" style={{ backgroundImage: bgGradient, paddingBottom: "3rem" }}>
                 <div className="p-4 container position-relative">
                     <button className="glass-card mb-4 px-3 py-2 shadow-sm" style={{ color: "var(--text-main)" }} onClick={() => navigate(-1)}>
                         ← Back
@@ -611,7 +611,7 @@ export default function SingleShowPage() {
 
                     <div>
                         {/* --- LISTA EPISODI --- */}
-                        <div className="glass-card" style={{ marginTop: "9rem" }}>
+                        <div className="glass-card position-relative" style={{ marginTop: "9rem", zIndex: 20 }}>
                             <div className="d-flex align-items-end m-3">
                                 <img
                                     src={selectedSeasonPoster || defaultPoster} alt={`Season ${selectedSeason}`}
@@ -628,16 +628,187 @@ export default function SingleShowPage() {
 
 
                                 <div className="d-flex flex-wrap align-items-end gap-3" style={{ marginLeft: "9rem" }}>
-                                    {/* Dropdown per selezionare la stazione */}
-                                    <div className="dropdown">
-                                        <button className="gray-button-glass dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    
+                                    {/* Per mobile */}
+                                    {/* MENU PRINCIPALE DELLA STAGIONE */}
+                                    <div className="dropdown flex-shrink-0 d-md-none">
+                                        <button className="gray-button-glass dropdown-toggle d-flex align-items-center gap-2 fw-bold" type="button" data-bs-toggle="dropdown">
                                             Season {selectedSeason}
                                         </button>
-                                        <ul className="dropdown-menu glass-card">
+                                        <ul className="dropdown-menu glass-card shadow" style={{ zIndex: 1050, minWidth: "260px" }}>
+                                            
+                                            {/* 1. SOTTOMENÙ SELEZIONE STAGIONI */}
+                                            {isBeingWatched ? (
+                                                <li>
+                                                    <button
+                                                        className="dropdown-item py-2 d-flex justify-content-between align-items-center fw-bold"
+                                                        type="button"
+                                                        data-bs-toggle="collapse"
+                                                        data-bs-target="#collapseSeasonSelect"
+                                                        aria-expanded="true"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        Select Season <i className="bi bi-chevron-down ms-3" style={{ fontSize: "0.8rem" }}></i>
+                                                    </button>
+                                                    <div className="collapse show" id="collapseSeasonSelect">
+                                                        <div className="scrollbar-no py-1" style={{ maxHeight: "150px", overflowY: "auto" }}>
+                                                            {seasonsDetails.map((season) => (
+                                                                <button
+                                                                    key={season.id}
+                                                                    className={`dropdown-item py-2 ${selectedSeason === season.number ? 'active fw-bold' : 'text-muted'}`}
+                                                                    style={{ paddingLeft: "2rem" }}
+                                                                    onClick={() => setSelectedSeason(season.number)}
+                                                                >
+                                                                    Season {season.number}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </li>) : (
+                                                <li>
+                                                    <div className="scrollbar-no py-1" style={{ maxHeight: "250px", overflowY: "auto" }}>
+                                                        {seasonsDetails.map((season) => (
+                                                            <button
+                                                                key={season.id}
+                                                                className={`dropdown-item py-2 ${selectedSeason === season.number ? 'active fw-bold' : ''}`}
+                                                                onClick={() => setSelectedSeason(season.number)}
+                                                            >
+                                                                Season {season.number}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </li>
+                                            )}
+
+                                            {isBeingWatched && (
+                                                <>
+                                                    <li><hr className="dropdown-divider my-1" /></li>
+                                                    
+                                                    {/* 2. SOTTOMENÙ AZIONI DI MARK */}
+                                                    <li>
+                                                        <button
+                                                            className="dropdown-item py-2 d-flex justify-content-between align-items-center fw-bold"
+                                                            type="button"
+                                                            data-bs-toggle="collapse"
+                                                            data-bs-target="#collapseMarkActions"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            Mark Actions <i className="bi bi-chevron-down ms-3" style={{ fontSize: "0.8rem" }}></i>
+                                                        </button>
+                                                        <div className="collapse" id="collapseMarkActions">
+                                                            <div className="py-1">
+                                                                <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => handleMarkSeason(selectedSeason)}>
+                                                                    {isSeasonFullyWatched ? `Unmark Season ${selectedSeason}` : `Mark Season ${selectedSeason} as watched`}
+                                                                </button>
+                                                                
+                                                                {isShowFullyWatched ? (
+                                                                    <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => handleMarkShow()}>Unmark entire show</button>
+                                                                ) : (
+                                                                    <div>
+                                                                        <button
+                                                                            className="dropdown-item py-2 d-flex justify-content-between align-items-center text-muted"
+                                                                            style={{ paddingLeft: "2rem" }}
+                                                                            type="button"
+                                                                            data-bs-toggle="collapse"
+                                                                            data-bs-target={`#collapseDate-${showId}`}
+                                                                            onClick={(e) => e.stopPropagation()}
+                                                                        >
+                                                                            Mark Entire Show... <i className="bi bi-chevron-down ms-3" style={{ fontSize: "0.8rem" }}></i>
+                                                                        </button>
+                                                                        <div className="collapse" id={`collapseDate-${showId}`}>
+                                                                            <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "3rem" }} onClick={() => {
+                                                                                const d = new Date();
+                                                                                markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                                                                                if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
+                                                                            }}>Today</button>
+
+                                                                            <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "3rem" }} onClick={() => {
+                                                                                const d = new Date();
+                                                                                d.setDate(d.getDate() - 1);
+                                                                                markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                                                                                if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
+                                                                            }}>Yesterday</button>
+
+                                                                            <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "3rem" }} onClick={() => {
+                                                                                const d = new Date();
+                                                                                d.setDate(d.getDate() - 2);
+                                                                                markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                                                                                if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
+                                                                            }}>2 days ago</button>
+
+                                                                            <button type="button" className="dropdown-item py-2 text-muted" style={{ paddingLeft: "3rem" }} onClick={(e) => {
+                                                                                e.preventDefault();
+                                                                                e.stopPropagation();
+                                                                                setDateTimeModal({
+                                                                                    isOpen: true,
+                                                                                    episode: null,
+                                                                                    actionType: 'markShow'
+                                                                                });
+                                                                            }}>Custom date</button>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+
+                                                                {isSeasonFullyWatched && (
+                                                                    <button className="dropdown-item py-2 text-primary" style={{ paddingLeft: "2rem" }} onClick={() => {
+                                                                        if (window.confirm(`Vuoi resettare il progresso della Stagione ${selectedSeason} per rivederla?`)) {
+                                                                            startSeasonRewatch(Number(showId), selectedSeason);
+                                                                        }
+                                                                    }}>
+                                                                        <i className="bi bi-arrow-clockwise" /> Rewatch Season {selectedSeason}
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </li>
+
+                                                    <li><hr className="dropdown-divider my-1" /></li>
+
+                                                    {/* 3. PULSANTE RATE */}
+                                                    <li>
+                                                        <button
+                                                            className="dropdown-item py-2 fw-bold"
+                                                            onClick={() =>
+                                                                setRatingModal({
+                                                                    isOpen: true,
+                                                                    type: 'season',
+                                                                    targetId: selectedSeason,
+                                                                    targetName: `Season ${selectedSeason}`,
+                                                                    currentVal: seasonProg?.userRating || 0
+                                                                })
+                                                            }
+                                                        >
+                                                            <i className="bi bi-heart-fill text-danger me-2"></i>
+                                                            {currentSeasonProgress?.userRating ? `Change Rating (${currentSeasonProgress.userRating}/10)` : `Rate Season ${selectedSeason}`}
+                                                        </button>
+                                                    </li>
+                                                </>
+                                            )}
+                                        </ul>
+                                    </div>
+
+                                    {/* Da tablet in su */}
+                                    {/* Badge visualizzato solo se la stagione ha delle visualizzazioni */}
+                                    <div className="d-none d-md-block">
+                                        {seasonWatchedCount > 0 && (
+                                            <div className="d-flex align-items-center">
+                                                <span className="lightgreen-button-glass px-3 fw-bold">
+                                                    {seasonWatchedCount > 1 ? `Rewatched ${seasonWatchedCount}x` : 'Completed'}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Dropdown per selezionare la stazione */}
+                                    <div className="dropdown d-none d-md-block">
+                                        <button className="gray-button-glass dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown">
+                                            Season {selectedSeason}
+                                        </button>
+                                        <ul className="dropdown-menu glass-card" style={{ zIndex: 1050 }}>
                                             {seasonsDetails.map((season) => (
                                                 <li key={season.id}>
                                                     <button
-                                                        className={`dropdown-item ${selectedSeason === season.number ? 'active' : ''}`}
+                                                        className={`dropdown-item ${selectedSeason === season.number ? 'active fw-bold' : ''}`}
                                                         onClick={() => setSelectedSeason(season.number)}
                                                     >
                                                         Season {season.number}
@@ -657,99 +828,103 @@ export default function SingleShowPage() {
                                     )}
 
                                     {/* Solo se stiamo guardando la serie */}
-                                    {isBeingWatched && (
-                                        <div className="dropdown">
-                                            <button className="lightgreen-button-glass dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Mark
-                                            </button>
-                                            <ul className="dropdown-menu glass-card">
-                                                <li><button className="dropdown-item" onClick={() => handleMarkSeason(selectedSeason)}>
-                                                    {isSeasonFullyWatched ? `Unmark Season ${selectedSeason}` : `Mark Season ${selectedSeason} as watched`}
-                                                </button></li>
-                                                {isShowFullyWatched ? (
-                                                    <li><button className="dropdown-item" onClick={() => handleMarkShow()}>Unmark entire show</button></li>
-                                                ) : (
-                                                    <li>
-                                                        <div>
-                                                            <button
-                                                                className="dropdown-item py-2 d-flex justify-content-between align-items-center"
-                                                                type="button"
-                                                                data-bs-toggle="collapse"
-                                                                data-bs-target={`#collapseDate-${showId}`}
-                                                                onClick={(e) => e.stopPropagation()}
-                                                            >
-                                                                Mark Entire Show as Watched <i className="bi bi-chevron-down ms-3" style={{ fontSize: "0.8rem" }}></i>
-                                                            </button>
-                                                            <div className="collapse" id={`collapseDate-${showId}`}>
-
-                                                                <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => {
-                                                                    const d = new Date();
-                                                                    markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-                                                                    if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
-                                                                }}>Today</button>
-
-                                                                <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => {
-                                                                    const d = new Date();
-                                                                    d.setDate(d.getDate() - 1);
-                                                                    markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-                                                                    if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
-                                                                }}>Yesterday</button>
-
-                                                                <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => {
-                                                                    const d = new Date();
-                                                                    d.setDate(d.getDate() - 2);
-                                                                    markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-                                                                    if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
-                                                                }}>2 days ago</button>
-
-                                                                <button type="button" className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={(e) => {
-                                                                    e.preventDefault();
-                                                                    e.stopPropagation();
-                                                                    setDateTimeModal({
-                                                                        isOpen: true,
-                                                                        episode: null,
-                                                                        actionType: 'markShow'
-                                                                    });
-                                                                }}>Custom date</button>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                )}
-                                                {isSeasonFullyWatched && (
-                                                    <li><button className="dropdown-item" onClick={() => {
-                                                        if (window.confirm(`Vuoi resettare il progresso della Stagione ${selectedSeason} per rivederla?`)) {
-                                                            startSeasonRewatch(Number(showId), selectedSeason);
-                                                        }
-                                                    }}>
-                                                        <i className="bi bi-arrow-clockwise" /> Rewatch Season {selectedSeason}
+                                    <div className="d-none d-md-block">
+                                        {isBeingWatched && (
+                                            <div className="dropdown">
+                                                <button className="lightgreen-button-glass dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    Mark
+                                                </button>
+                                                <ul className="dropdown-menu glass-card">
+                                                    <li><button className="dropdown-item" onClick={() => handleMarkSeason(selectedSeason)}>
+                                                        {isSeasonFullyWatched ? `Unmark Season ${selectedSeason}` : `Mark Season ${selectedSeason} as watched`}
                                                     </button></li>
-                                                )}
-                                            </ul>
-                                        </div>
-                                    )}
+                                                    {isShowFullyWatched ? (
+                                                        <li><button className="dropdown-item" onClick={() => handleMarkShow()}>Unmark entire show</button></li>
+                                                    ) : (
+                                                        <li>
+                                                            <div>
+                                                                <button
+                                                                    className="dropdown-item py-2 d-flex justify-content-between align-items-center"
+                                                                    type="button"
+                                                                    data-bs-toggle="collapse"
+                                                                    data-bs-target={`#collapseDate-${showId}`}
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                >
+                                                                    Mark Entire Show as Watched <i className="bi bi-chevron-down ms-3" style={{ fontSize: "0.8rem" }}></i>
+                                                                </button>
+                                                                <div className="collapse" id={`collapseDate-${showId}`}>
+
+                                                                    <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => {
+                                                                        const d = new Date();
+                                                                        markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                                                                        if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
+                                                                    }}>Today</button>
+
+                                                                    <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => {
+                                                                        const d = new Date();
+                                                                        d.setDate(d.getDate() - 1);
+                                                                        markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                                                                        if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
+                                                                    }}>Yesterday</button>
+
+                                                                    <button className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={() => {
+                                                                        const d = new Date();
+                                                                        d.setDate(d.getDate() - 2);
+                                                                        markShowAsWatched(Number(showId), d.toLocaleDateString(), d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                                                                        if (!isBeingWatched?.userRating) setRatingModal({ isOpen: true, type: 'show', targetId: Number(showId), targetName: singleShowData?.name || "Serie", currentVal: 0 });
+                                                                    }}>2 days ago</button>
+
+                                                                    <button type="button" className="dropdown-item py-2 text-muted" style={{ paddingLeft: "2rem" }} onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        e.stopPropagation();
+                                                                        setDateTimeModal({
+                                                                            isOpen: true,
+                                                                            episode: null,
+                                                                            actionType: 'markShow'
+                                                                        });
+                                                                    }}>Custom date</button>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    )}
+                                                    {isSeasonFullyWatched && (
+                                                        <li><button className="dropdown-item" onClick={() => {
+                                                            if (window.confirm(`Vuoi resettare il progresso della Stagione ${selectedSeason} per rivederla?`)) {
+                                                                startSeasonRewatch(Number(showId), selectedSeason);
+                                                            }
+                                                        }}>
+                                                            <i className="bi bi-arrow-clockwise" /> Rewatch Season {selectedSeason}
+                                                        </button></li>
+                                                    )}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
 
                                     {/* Rating della stagione */}
-                                    {isBeingWatched && (
-                                        <button
-                                            type="button"
-                                            className="pink-button-glass flex-shrink-0"
-                                            onClick={() =>
-                                                setRatingModal({
-                                                    isOpen: true,
-                                                    type: 'season',
-                                                    targetId: selectedSeason,
-                                                    targetName: `Season ${selectedSeason}`,
-                                                    currentVal: seasonProg?.userRating || 0
-                                                })
-                                            }
-                                        >
-                                            {currentSeasonProgress?.userRating ? (
-                                                <><i className="bi bi-heart-fill" style={{ color: "#dc3545" }}></i> <strong>{currentSeasonProgress.userRating}/10</strong></>
-                                            ) : (
-                                                <>Rate Season {selectedSeason}</>
-                                            )}
-                                        </button>
-                                    )}
+                                    <div className="d-none d-md-block">
+                                        {isBeingWatched && (
+                                            <button
+                                                type="button"
+                                                className="pink-button-glass flex-shrink-0"
+                                                onClick={() =>
+                                                    setRatingModal({
+                                                        isOpen: true,
+                                                        type: 'season',
+                                                        targetId: selectedSeason,
+                                                        targetName: `Season ${selectedSeason}`,
+                                                        currentVal: seasonProg?.userRating || 0
+                                                    })
+                                                }
+                                            >
+                                                {currentSeasonProgress?.userRating ? (
+                                                    <><i className="bi bi-heart-fill" style={{ color: "#dc3545" }}></i> <strong>{currentSeasonProgress.userRating}/10</strong></>
+                                                ) : (
+                                                    <>Rate Season {selectedSeason}</>
+                                                )}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 

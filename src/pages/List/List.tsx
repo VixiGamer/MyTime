@@ -25,7 +25,7 @@ export default function List() {
         if (e.key === "Enter") handleAddList();
     };
 
-    // Questo useEffect si occupa di scegliere un'immagine casuale tra tutte le serie salvate nelle liste, e poi fare la gradiante per lo sfondo della paggina.
+    //* Questo useEffect si occupa di scegliere un'immagine casuale tra tutte le serie salvate nelle liste, e poi fare la gradiante per lo sfondo della paggina.
     useEffect(() => {
         const allShows = lists.flatMap(list => list.shows);        // Estrae tutte le serie da tutte le liste unendole in un singolo array
         const showsWithImages = allShows.filter(show => show.image?.original || show.image?.medium);        // Filtra tenendo solo le serie che possiedono fisicamente un link per l'immagine

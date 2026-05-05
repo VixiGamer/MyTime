@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router"
 import defaultPoster from "../../images/poster_default.png";
+import "./SearchedShow.css"
 
 type Props = {
     id: number,
@@ -19,16 +20,15 @@ export default function SearchedShowCard({ id, image, title }: Props) {
     }
 
     return (
-        <div className="border-0" style={{ width: "14rem" }} onClick={handleClick}>
-            {!posterImgLoaded && (
-                <div className="card-img-top d-flex align-items-center justify-content-center bg-secondary text-light" style={{ borderTopLeftRadius: "5px", borderTopRightRadius: "5px", height: "19.5rem", width: "100%" }}>
-                    <div className="spinner-border text-light" role="status">
-                        <span className="visually-hidden"></span>
+        <div className="card h-100 bg-transparent border-0 transition-all hover-scale" style={{ cursor: "pointer" }} onClick={handleClick}>
+            <div className="position-relative shadow-sm" style={{ borderRadius: "15px", overflow: "hidden" }}>
+                {!posterImgLoaded && (
+                    <div className="d-flex align-items-center justify-content-center bg-secondary text-light w-100 actor-show-image">
+                        <div className="spinner-border text-light" role="status">
+                            <span className="visually-hidden"></span>
+                        </div>
                     </div>
-                </div>
-            )}
-
-            <div className="rounded-4">
+                )}
                 <img
                     src={image || defaultPoster}
                     alt={title + " poster"}
@@ -36,15 +36,16 @@ export default function SearchedShowCard({ id, image, title }: Props) {
                     onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = defaultPoster;
-                        setPosterImgLoaded(true)
+                        setPosterImgLoaded(true);
                     }}
-                    className="card-img-top rounded-4"
+                    className="w-100 show-image"
                     style={{
-                        objectFit: "cover",
                         display: posterImgLoaded ? "block" : "none" // Usa none invece di rimuoverla dal DOM
                     }}
                 />
-                <p className="text-center">{title}</p>
+            </div>
+            <div className="card-body p-2 px-0 text-center d-flex flex-column">
+                <h6 className="card-title text-truncate fw-bold mb-0 px-2" title={title} style={{ fontSize: "1rem" }}>{title}</h6>
             </div>
         </div>
     )

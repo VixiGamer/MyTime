@@ -1,0 +1,10 @@
+.show-image {
+    object-fit: cover;
+    height: 17rem; /* Default per il desktop */
+}
+
+@media (max-width: 1366px) {
+    .show-image {
+        height: 14rem;
+    }
+}
